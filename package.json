@@ -1,0 +1,39 @@
+{
+  "name": "react-2d-canvas",
+  "version": "0.0.0",
+  "description": "Draw text and shapes on a HTML Canvas element using a declarative JSX syntax",
+  "main": "dist/index.cjs.js",
+  "module": "dist/index.esm.js",
+  "source": "index.js",
+  "scripts": {
+    "build": "rollup -c",
+    "build-watch": "rollup -c -w"
+  },
+  "keywords": [
+    "canvas",
+    "2d",
+    "draw",
+    "react",
+    "jsx",
+    "shape",
+    "text",
+    "declarative"
+  ],
+  "author": "Claudijo Borovic <claudijo.borovic@gmail.com>",
+  "license": "MIT",
+  "peerDependencies": {
+    "react": "17.x",
+    "react-dom": "17.x"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.15.7",
+    "@babel/core": "^7.15.5",
+    "@babel/preset-env": "^7.15.6",
+    "@babel/preset-react": "^7.14.5",
+    "@rollup/plugin-babel": "^5.3.0",
+    "npm-run-all": "^4.1.5",
+    "rollup": "^2.57.0",
+    "rollup-plugin-delete": "^2.0.0",
+    "rollup-plugin-peer-deps-external": "^2.2.4"
+  }
+}
