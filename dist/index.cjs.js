@@ -617,16 +617,16 @@ var AbstractShape = /*#__PURE__*/function (_HTMLElement) {
       this.setAttribute('shadowOffsetY', value);
     }
   }, {
-    key: "lineDash",
+    key: "borderDash",
     get: function get() {
       var _this$getAttribute$sp, _this$getAttribute2;
 
-      return (_this$getAttribute$sp = (_this$getAttribute2 = this.getAttribute('lineDash')) === null || _this$getAttribute2 === void 0 ? void 0 : _this$getAttribute2.split(',').map(function (item) {
+      return (_this$getAttribute$sp = (_this$getAttribute2 = this.getAttribute('borderDash')) === null || _this$getAttribute2 === void 0 ? void 0 : _this$getAttribute2.split(',').map(function (item) {
         return Number(item);
       })) !== null && _this$getAttribute$sp !== void 0 ? _this$getAttribute$sp : [];
     },
     set: function set(value) {
-      this.setAttribute('lineDash', value);
+      this.setAttribute('borderDash', value);
     }
   }, {
     key: "rotateAndScale",
@@ -636,12 +636,12 @@ var AbstractShape = /*#__PURE__*/function (_HTMLElement) {
       var rotation = this.rotation + offset.rotation;
 
       if (scaleX !== 1 || scaleY !== 1 || rotation !== 0) {
-        var _this$getBoundingBox = this.getBoundingBox(),
+        var _this$getBoundingBox = this.getBoundingBox(offset),
             top = _this$getBoundingBox.top,
             left = _this$getBoundingBox.left;
 
-        var translateX = left + this.width * this.originX + offset.x;
-        var translateY = top + this.height * this.originY + offset.y;
+        var translateX = left + this.width * this.originX;
+        var translateY = top + this.height * this.originY;
         ctx.translate(translateX, translateY);
         ctx.scale(scaleX, scaleY);
         ctx.rotate(rotation);
@@ -680,8 +680,8 @@ var AbstractShape = /*#__PURE__*/function (_HTMLElement) {
         ctx.fill();
       }
 
-      if (this.lineDash.length) {
-        ctx.setLineDash(this.lineDash);
+      if (this.borderDash.length) {
+        ctx.setLineDash(this.borderDash);
       }
 
       if (this.borderColor && this.borderWidth) {
@@ -707,7 +707,7 @@ var AbstractShape = /*#__PURE__*/function (_HTMLElement) {
   }], [{
     key: "observedAttributes",
     get: function get() {
-      return ['x', 'y', 'backgroundcolor', 'bordercolor', 'borderwidth', 'opacity', 'originx', 'originy', 'rotation', 'scalex', 'scaley', 'shadowcolor', 'shadowblur', 'shadowoffsetx', 'shadowoffsety', 'linedash'];
+      return ['x', 'y', 'backgroundcolor', 'bordercolor', 'borderwidth', 'opacity', 'originx', 'originy', 'rotation', 'scalex', 'scaley', 'shadowcolor', 'shadowblur', 'shadowoffsetx', 'shadowoffsety', 'borderdash'];
     }
   }]);
 
@@ -748,26 +748,27 @@ var CanvasRectangle = /*#__PURE__*/function (_AbstractShape) {
     }
   }, {
     key: "getBoundingBox",
-    value: function getBoundingBox() {
-      var left = this.x - this.width * this.originX;
-      var top = this.y - this.height * this.originY;
+    value: function getBoundingBox(offset) {
+      var left = this.x + offset.x - this.width * this.originX;
+      var top = this.y + offset.y - this.height * this.originY;
+      var right = left + this.width;
+      var bottom = top + this.height;
       return {
         left: left,
-        right: left + this.width,
+        right: right,
         top: top,
-        bottom: top + this.height
+        bottom: bottom
       };
     }
   }, {
     key: "trace",
     value: function trace(ctx, offset) {
-      ctx.beginPath();
-
-      var _this$getBoundingBox = this.getBoundingBox(),
+      var _this$getBoundingBox = this.getBoundingBox(offset),
           left = _this$getBoundingBox.left,
           top = _this$getBoundingBox.top;
 
-      ctx.rect(left + offset.x, top + offset.y, this.width, this.height);
+      ctx.beginPath();
+      ctx.rect(left + this.borderWidth / 2, top + this.borderWidth / 2, this.width - this.borderWidth, this.height - this.borderWidth);
       return true;
     }
   }, {
@@ -991,11 +992,11 @@ var CanvasImage = /*#__PURE__*/function (_CanvasRectangle) {
   }, {
     key: "drawImage",
     value: function drawImage(ctx, offset) {
-      var _this$getBoundingBox = this.getBoundingBox(),
+      var _this$getBoundingBox = this.getBoundingBox(offset),
           left = _this$getBoundingBox.left,
           top = _this$getBoundingBox.top;
 
-      ctx.drawImage(this.image, left + offset.x, top + offset.y, this.width, this.height);
+      ctx.drawImage(this.image, left + this.borderWidth, top + this.borderWidth, this.width - this.borderWidth * 2, this.height - this.borderWidth * 2);
       return true;
     }
   }, {
