@@ -728,7 +728,7 @@ var fillAndStroke = function fillAndStroke(shape) {
   };
 };
 
-var _excluded$2 = ["children"];
+var _excluded$3 = ["children"];
 var CanvasRectangle = /*#__PURE__*/function (_AbstractShape) {
   _inherits(CanvasRectangle, _AbstractShape);
 
@@ -804,7 +804,7 @@ var CanvasRectangle = /*#__PURE__*/function (_AbstractShape) {
 registerCustomElement('canvas-rectangle', CanvasRectangle);
 function Rectangle(_ref) {
   var children = _ref.children,
-      props = _objectWithoutProperties(_ref, _excluded$2);
+      props = _objectWithoutProperties(_ref, _excluded$3);
 
   return /*#__PURE__*/React.createElement("canvas-rectangle", props, children);
 }
@@ -969,7 +969,7 @@ var loadImage = function loadImage(image) {
     image.image = image.imageCache.read(image.src);
 
     if (!image.image) {
-      image.image = new window.Image();
+      image.image = new Image();
 
       image.image.onload = function () {
         var customEvent = new CustomEvent('load', {
@@ -986,7 +986,7 @@ var loadImage = function loadImage(image) {
   };
 };
 
-var _excluded$1 = ["children"];
+var _excluded$2 = ["children"];
 var CanvasImage = /*#__PURE__*/function (_CanvasRectangle) {
   _inherits(CanvasImage, _CanvasRectangle);
 
@@ -1030,9 +1030,9 @@ var CanvasImage = /*#__PURE__*/function (_CanvasRectangle) {
   return CanvasImage;
 }(CanvasRectangle);
 registerCustomElement('canvas-image', CanvasImage);
-function Image(_ref) {
+function Image$1(_ref) {
   var children = _ref.children,
-      props = _objectWithoutProperties(_ref, _excluded$1);
+      props = _objectWithoutProperties(_ref, _excluded$2);
 
   return /*#__PURE__*/React.createElement("canvas-image", props, children);
 }
@@ -1046,12 +1046,12 @@ var traceArc = function traceArc(arc) {
         top = _arc$getBoundingBox.top;
 
     ctx.beginPath();
-    ctx.arc(left + arc.radius, top + arc.radius, arc.radius - arc.borderWidth / 2, (_arc$startAngle = arc.startAngle) !== null && _arc$startAngle !== void 0 ? _arc$startAngle : 0, (_arc$endAngle = arc.endAngle) !== null && _arc$endAngle !== void 0 ? _arc$endAngle : 2 * Math.PI, (_arc$anticlockwise = arc.anticlockwise) !== null && _arc$anticlockwise !== void 0 ? _arc$anticlockwise : false);
+    ctx.arc(left + arc.radius, top + arc.radius, arc.radius - arc.borderWidth / 2, ((_arc$startAngle = arc.startAngle) !== null && _arc$startAngle !== void 0 ? _arc$startAngle : 0) - Math.PI / 2, ((_arc$endAngle = arc.endAngle) !== null && _arc$endAngle !== void 0 ? _arc$endAngle : Math.PI * 2) - Math.PI / 2, (_arc$anticlockwise = arc.anticlockwise) !== null && _arc$anticlockwise !== void 0 ? _arc$anticlockwise : false);
     return true;
   };
 };
 
-var _excluded = ["children"];
+var _excluded$1 = ["children"];
 var CanvasCircle = /*#__PURE__*/function (_AbstractShape) {
   _inherits(CanvasCircle, _AbstractShape);
 
@@ -1119,9 +1119,62 @@ var CanvasCircle = /*#__PURE__*/function (_AbstractShape) {
 registerCustomElement('canvas-circle', CanvasCircle);
 function Circle(_ref) {
   var children = _ref.children,
-      props = _objectWithoutProperties(_ref, _excluded);
+      props = _objectWithoutProperties(_ref, _excluded$1);
 
   return /*#__PURE__*/React.createElement("canvas-circle", props, children);
 }
 
-export { Circle, Image, Layer, Rectangle, ScaleMode, Stage };
+var _excluded = ["children"];
+var CanvasArc = /*#__PURE__*/function (_CanvasCircle) {
+  _inherits(CanvasArc, _CanvasCircle);
+
+  var _super = _createSuper(CanvasArc);
+
+  function CanvasArc() {
+    _classCallCheck(this, CanvasArc);
+
+    return _super.apply(this, arguments);
+  }
+
+  _createClass(CanvasArc, [{
+    key: "startAngle",
+    get: function get() {
+      return this.getNumericAttribute('startAngle');
+    },
+    set: function set(value) {
+      this.setAttribute('startAngle', value);
+    }
+  }, {
+    key: "endAngle",
+    get: function get() {
+      return this.getNumericAttribute('endAngle');
+    },
+    set: function set(value) {
+      this.setAttribute('endAngle', value);
+    }
+  }, {
+    key: "anticlockwise",
+    get: function get() {
+      return this.getBooleanAttribute('anticlockwise');
+    },
+    set: function set(value) {
+      this.setBooleanAttribute('anticlockwise', value);
+    }
+  }], [{
+    key: "observedAttributes",
+    get: function get() {
+      return [].concat(_toConsumableArray(AbstractShape.observedAttributes), ['radius', 'startangle', 'endangle', 'anticlockwise']);
+    }
+  }]);
+
+  return CanvasArc;
+}(CanvasCircle);
+registerCustomElement('canvas-arc', CanvasArc);
+function Arc(_ref) {
+  var children = _ref.children,
+      props = _objectWithoutProperties(_ref, _excluded);
+
+  return /*#__PURE__*/React.createElement("canvas-arc", props, children);
+}
+
+export { Arc, Circle, Image$1 as Image, Layer, Rectangle, ScaleMode, Stage };

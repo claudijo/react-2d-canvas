@@ -6,3 +6,4 @@ export { default as Layer } from './lib/components/layer';
 export { default as Rectangle } from './lib/shapes/rectangle';
 export { default as Image } from './lib/shapes/image';
 export { default as Circle } from './lib/shapes/circle';
+export { default as Arc } from './lib/shapes/arc';
