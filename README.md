@@ -27,7 +27,7 @@ function App() {
   return (
     <Stage
       width={200}
-      height={200} backgroundColor="cornsilk"
+      height={200}
       scaleMode={ScaleMode.SCALE_TO_FIT}
     >
       <Layer>
