@@ -467,12 +467,20 @@ var AbstractShape = /*#__PURE__*/function (_HTMLElement) {
       this.dispatchEvent(customEvent);
     }
   }, {
-    key: "getNumericAttribute",
-    value: function getNumericAttribute(attributeName) {
+    key: "getTextualAttribute",
+    value: function getTextualAttribute(attributeName) {
       var _this$getAttribute;
 
+      var defaultValue = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : '';
+      return (_this$getAttribute = this.getAttribute(attributeName)) !== null && _this$getAttribute !== void 0 ? _this$getAttribute : defaultValue;
+    }
+  }, {
+    key: "getNumericAttribute",
+    value: function getNumericAttribute(attributeName) {
+      var _this$getAttribute2;
+
       var defaultValue = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
-      return Number((_this$getAttribute = this.getAttribute(attributeName)) !== null && _this$getAttribute !== void 0 ? _this$getAttribute : defaultValue);
+      return Number((_this$getAttribute2 = this.getAttribute(attributeName)) !== null && _this$getAttribute2 !== void 0 ? _this$getAttribute2 : defaultValue);
     }
   }, {
     key: "getBooleanAttribute",
@@ -611,9 +619,9 @@ var AbstractShape = /*#__PURE__*/function (_HTMLElement) {
   }, {
     key: "borderDash",
     get: function get() {
-      var _this$getAttribute$sp, _this$getAttribute2;
+      var _this$getAttribute$sp, _this$getAttribute3;
 
-      return (_this$getAttribute$sp = (_this$getAttribute2 = this.getAttribute('borderDash')) === null || _this$getAttribute2 === void 0 ? void 0 : _this$getAttribute2.split(',').map(function (item) {
+      return (_this$getAttribute$sp = (_this$getAttribute3 = this.getAttribute('borderDash')) === null || _this$getAttribute3 === void 0 ? void 0 : _this$getAttribute3.split(',').map(function (item) {
         return Number(item);
       })) !== null && _this$getAttribute$sp !== void 0 ? _this$getAttribute$sp : [];
     },
@@ -685,7 +693,7 @@ var rotateAndScale = function rotateAndScale(shape) {
     return true;
   };
 };
-var fillAndStroke = function fillAndStroke(shape) {
+var shade = function shade(shape) {
   return function (ctx, offset) {
     var globalAlpha = shape.opacity * offset.opacity;
 
@@ -709,6 +717,11 @@ var fillAndStroke = function fillAndStroke(shape) {
       ctx.shadowOffsetY = shape.shadowOffsetY;
     }
 
+    return true;
+  };
+};
+var fillAndStroke = function fillAndStroke(shape) {
+  return function (ctx, offset) {
     if (shape.backgroundColor) {
       ctx.fillStyle = shape.backgroundColor;
       ctx.fill();
@@ -728,7 +741,7 @@ var fillAndStroke = function fillAndStroke(shape) {
   };
 };
 
-var _excluded$3 = ["children"];
+var _excluded$4 = ["children"];
 var CanvasRectangle = /*#__PURE__*/function (_AbstractShape) {
   _inherits(CanvasRectangle, _AbstractShape);
 
@@ -789,6 +802,7 @@ var CanvasRectangle = /*#__PURE__*/function (_AbstractShape) {
     value: function draw(ctx, offset) {
       this.pipeline.push(rotateAndScale(this));
       this.pipeline.push(traceRectangle(this));
+      this.pipeline.push(shade(this));
       this.pipeline.push(fillAndStroke(this));
       this.drawPipeline(ctx, offset);
     }
@@ -804,7 +818,7 @@ var CanvasRectangle = /*#__PURE__*/function (_AbstractShape) {
 registerCustomElement('canvas-rectangle', CanvasRectangle);
 function Rectangle(_ref) {
   var children = _ref.children,
-      props = _objectWithoutProperties(_ref, _excluded$3);
+      props = _objectWithoutProperties(_ref, _excluded$4);
 
   return /*#__PURE__*/React.createElement("canvas-rectangle", props, children);
 }
@@ -986,7 +1000,7 @@ var loadImage = function loadImage(image) {
   };
 };
 
-var _excluded$2 = ["children"];
+var _excluded$3 = ["children"];
 var CanvasImage = /*#__PURE__*/function (_CanvasRectangle) {
   _inherits(CanvasImage, _CanvasRectangle);
 
@@ -1016,6 +1030,7 @@ var CanvasImage = /*#__PURE__*/function (_CanvasRectangle) {
       this.pipeline.push(loadImage(this));
       this.pipeline.push(rotateAndScale(this));
       this.pipeline.push(traceRectangle(this));
+      this.pipeline.push(shade(this));
       this.pipeline.push(fillAndStroke(this));
       this.pipeline.push(drawImage(this));
       this.drawPipeline(ctx, offset);
@@ -1032,7 +1047,7 @@ var CanvasImage = /*#__PURE__*/function (_CanvasRectangle) {
 registerCustomElement('canvas-image', CanvasImage);
 function Image$1(_ref) {
   var children = _ref.children,
-      props = _objectWithoutProperties(_ref, _excluded$2);
+      props = _objectWithoutProperties(_ref, _excluded$3);
 
   return /*#__PURE__*/React.createElement("canvas-image", props, children);
 }
@@ -1051,7 +1066,7 @@ var traceArc = function traceArc(arc) {
   };
 };
 
-var _excluded$1 = ["children"];
+var _excluded$2 = ["children"];
 var CanvasCircle = /*#__PURE__*/function (_AbstractShape) {
   _inherits(CanvasCircle, _AbstractShape);
 
@@ -1104,6 +1119,7 @@ var CanvasCircle = /*#__PURE__*/function (_AbstractShape) {
     value: function draw(ctx, offset) {
       this.pipeline.push(rotateAndScale(this));
       this.pipeline.push(traceArc(this));
+      this.pipeline.push(shade(this));
       this.pipeline.push(fillAndStroke(this));
       this.drawPipeline(ctx, offset);
     }
@@ -1119,12 +1135,12 @@ var CanvasCircle = /*#__PURE__*/function (_AbstractShape) {
 registerCustomElement('canvas-circle', CanvasCircle);
 function Circle(_ref) {
   var children = _ref.children,
-      props = _objectWithoutProperties(_ref, _excluded$1);
+      props = _objectWithoutProperties(_ref, _excluded$2);
 
   return /*#__PURE__*/React.createElement("canvas-circle", props, children);
 }
 
-var _excluded = ["children"];
+var _excluded$1 = ["children"];
 var CanvasArc = /*#__PURE__*/function (_CanvasCircle) {
   _inherits(CanvasArc, _CanvasCircle);
 
@@ -1172,9 +1188,194 @@ var CanvasArc = /*#__PURE__*/function (_CanvasCircle) {
 registerCustomElement('canvas-arc', CanvasArc);
 function Arc(_ref) {
   var children = _ref.children,
-      props = _objectWithoutProperties(_ref, _excluded);
+      props = _objectWithoutProperties(_ref, _excluded$1);
 
   return /*#__PURE__*/React.createElement("canvas-arc", props, children);
 }
 
-export { Arc, Circle, Image$1 as Image, Layer, Rectangle, ScaleMode, Stage };
+function memoize(fn, cache) {
+  return function () {
+    for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
+      args[_key] = arguments[_key];
+    }
+
+    var cacheKey = args.join(',');
+    var result = cache.read(cacheKey);
+
+    if (result === undefined) {
+      result = fn.apply(void 0, args);
+      cache.write(cacheKey, result);
+    }
+
+    return result;
+  };
+}
+
+var measureText = memoize(function (fontVariant, fontSize, fontFamily, baseline, align, text) {
+  var canvas = document.createElement('canvas');
+  var ctx = canvas.getContext('2d');
+  ctx.font = "".concat(fontVariant, " ").concat(fontSize, "px ").concat(fontFamily);
+  ctx.textBaseline = baseline;
+  ctx.textAlign = align;
+  return ctx.measureText(text);
+}, new Lru(50));
+
+var cropEnd = function cropEnd(text) {
+  var ellipses = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : '…';
+  var main = text.replace(new RegExp("".concat(ellipses, "$")), '');
+
+  if (main === '') {
+    return main;
+  }
+
+  var cropped = main.slice(0, -1);
+  return cropped + ellipses;
+};
+
+var fillAndStrokeText = function fillAndStrokeText(text) {
+  return function (ctx, offset) {
+    var textMetrics = measureText(text.fontVariant, text.fontSize, text.fontFamily, text.baseline, text.align, text.textContent);
+    var width = Math.abs(textMetrics.actualBoundingBoxLeft) + Math.abs(textMetrics.actualBoundingBoxRight);
+    var textContent = text.textContent;
+
+    while (textContent !== '' && width > text.maxWidth) {
+      textContent = cropEnd(textContent);
+
+      var _textMetrics = measureText(text.fontVariant, text.fontSize, text.fontFamily, text.baseline, text.align, textContent);
+
+      width = Math.abs(_textMetrics.actualBoundingBoxLeft) + Math.abs(_textMetrics.actualBoundingBoxRight);
+    }
+
+    ctx.font = "".concat(text.fontVariant, " ").concat(text.fontSize, "px ").concat(text.fontFamily);
+    ctx.textBaseline = text.baseline;
+    ctx.textAlign = text.align;
+    var x = text.x + offset.x;
+    var y = text.y + offset.y;
+
+    if (text.color) {
+      ctx.fillStyle = text.color;
+      ctx.fillText(textContent, x, y);
+    }
+
+    if (text.borderColor && text.borderWidth) {
+      ctx.strokeStyle = text.borderColor;
+      ctx.lineWidth = text.borderWidth;
+      ctx.strokeText(textContent, x, y);
+    }
+  };
+};
+
+var _excluded = ["children"];
+var CanvasLabel = /*#__PURE__*/function (_AbstractShape) {
+  _inherits(CanvasLabel, _AbstractShape);
+
+  var _super = _createSuper(CanvasLabel);
+
+  function CanvasLabel() {
+    _classCallCheck(this, CanvasLabel);
+
+    return _super.apply(this, arguments);
+  }
+
+  _createClass(CanvasLabel, [{
+    key: "fontSize",
+    get: function get() {
+      return this.getNumericAttribute('fontSize', 10);
+    },
+    set: function set(value) {
+      this.setAttribute('fontSize', value);
+    }
+  }, {
+    key: "fontFamily",
+    get: function get() {
+      return this.getTextualAttribute('fontFamily', 'sans-serif');
+    },
+    set: function set(value) {
+      this.setAttribute('fontFamily', value);
+    }
+  }, {
+    key: "fontVariant",
+    get: function get() {
+      return this.getTextualAttribute('fontVariant', 'normal');
+    },
+    set: function set(value) {
+      this.setAttribute('fontVariant', value);
+    }
+  }, {
+    key: "color",
+    get: function get() {
+      return this.getAttribute('color');
+    },
+    set: function set(value) {
+      this.setAttribute('color', value);
+    }
+  }, {
+    key: "baseline",
+    get: function get() {
+      return this.getTextualAttribute('baseline', 'alphabetic');
+    },
+    set: function set(value) {
+      this.setAttribute('baseline', value);
+    }
+  }, {
+    key: "align",
+    get: function get() {
+      return this.getTextualAttribute('align', 'start');
+    },
+    set: function set(value) {
+      this.setAttribute('align', value);
+    }
+  }, {
+    key: "maxWidth",
+    get: function get() {
+      return this.getNumericAttribute('maxWidth', Infinity);
+    },
+    set: function set(value) {
+      this.setAttribute('maxWidth', value);
+    } // getBoundingBox(offset) {
+    //   const textMetrics = measureText(this.fontVariant, this.fontSize, this.fontFamily, this.baseline, this.align, this.textContent);
+    //
+    //   const left = this.x + offset.x - textMetrics.actualBoundingBoxLeft;
+    //   const right = this.x + offset.x + textMetrics.actualBoundingBoxRight;
+    //   const top = this.y + offset.y - textMetrics.actualBoundingBoxAscent;
+    //   const bottom = this.y + offset.y + textMetrics.actualBoundingBoxDescent;
+    //
+    //   return { left, right, top, bottom };
+    // }
+
+  }, {
+    key: "getTranslationCenter",
+    value: function getTranslationCenter(offset) {
+      var x = this.x + offset.x;
+      var y = this.y + offset.y;
+      return {
+        x: x,
+        y: y
+      };
+    }
+  }, {
+    key: "draw",
+    value: function draw(ctx, offset) {
+      this.pipeline.push(rotateAndScale(this));
+      this.pipeline.push(shade(this));
+      this.pipeline.push(fillAndStrokeText(this));
+      this.drawPipeline(ctx, offset);
+    }
+  }], [{
+    key: "observedAttributes",
+    get: function get() {
+      return [].concat(_toConsumableArray(AbstractShape.observedAttributes), ['color', 'fontsize', 'fontFamily', 'fontVariant', 'baseline', 'align', 'maxwidth']);
+    }
+  }]);
+
+  return CanvasLabel;
+}(AbstractShape);
+registerCustomElement('canvas-label', CanvasLabel);
+function Label(_ref) {
+  var children = _ref.children,
+      props = _objectWithoutProperties(_ref, _excluded);
+
+  return /*#__PURE__*/React.createElement("canvas-label", props, children);
+}
+
+export { Arc, Circle, Image$1 as Image, Label, Layer, Rectangle, ScaleMode, Stage };
