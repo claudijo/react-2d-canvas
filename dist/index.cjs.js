@@ -629,63 +629,14 @@ var AbstractShape = /*#__PURE__*/function (_HTMLElement) {
       this.setAttribute('borderDash', value);
     }
   }, {
-    key: "rotateAndScale",
-    value: function rotateAndScale(ctx, offset) {
-      var scaleX = this.scaleX * offset.scaleX;
-      var scaleY = this.scaleY * offset.scaleY;
-      var rotation = this.rotation + offset.rotation;
-
-      if (scaleX !== 1 || scaleY !== 1 || rotation !== 0) {
-        var translate = this.getTranslationCenter(offset);
-        ctx.translate(translate.x, translate.y);
-        ctx.scale(scaleX, scaleY);
-        ctx.rotate(rotation);
-        ctx.translate(-translate.x, -translate.y);
-      }
-
-      return true;
+    key: "getBoundingBox",
+    value: function getBoundingBox() {
+      throw new Error('Method must be implemented in sub class');
     }
   }, {
-    key: "fillAndStroke",
-    value: function fillAndStroke(ctx, offset) {
-      var globalAlpha = this.opacity * offset.opacity;
-
-      if (globalAlpha !== 1) {
-        ctx.globalAlpha = globalAlpha;
-      }
-
-      if (this.shadowColor) {
-        ctx.shadowColor = this.shadowColor;
-      }
-
-      if (this.shadowBlur !== 0) {
-        ctx.shadowBlur = this.shadowBlur;
-      }
-
-      if (this.shadowOffsetX !== 0) {
-        ctx.shadowOffsetX = this.shadowOffsetX;
-      }
-
-      if (this.shadowOffsetY !== 0) {
-        ctx.shadowOffsetY = this.shadowOffsetY;
-      }
-
-      if (this.backgroundColor) {
-        ctx.fillStyle = this.backgroundColor;
-        ctx.fill();
-      }
-
-      if (this.borderDash.length) {
-        ctx.setLineDash(this.borderDash);
-      }
-
-      if (this.borderColor && this.borderWidth) {
-        ctx.strokeStyle = this.borderColor;
-        ctx.lineWidth = this.borderWidth;
-        ctx.stroke();
-      }
-
-      return true;
+    key: "getTranslationCenter",
+    value: function getTranslationCenter(offset) {
+      throw new Error('Method must be implemented in sub class');
     }
   }, {
     key: "drawPipeline",
@@ -711,6 +662,121 @@ var AbstractShape = /*#__PURE__*/function (_HTMLElement) {
 
 var registerCustomElement = function registerCustomElement(name, constructor) {
   customElements.get(name) || customElements.define(name, constructor);
+};
+
+var traceArc = function traceArc(arc) {
+  return function (ctx, offset) {
+    var _arc$startAngle, _arc$endAngle, _arc$anticlockwise;
+
+    var _arc$getBoundingBox = arc.getBoundingBox(offset),
+        left = _arc$getBoundingBox.left,
+        top = _arc$getBoundingBox.top;
+
+    ctx.beginPath();
+    ctx.arc(left + arc.radius, top + arc.radius, arc.radius - arc.borderWidth / 2, (_arc$startAngle = arc.startAngle) !== null && _arc$startAngle !== void 0 ? _arc$startAngle : 0, (_arc$endAngle = arc.endAngle) !== null && _arc$endAngle !== void 0 ? _arc$endAngle : 2 * Math.PI, (_arc$anticlockwise = arc.anticlockwise) !== null && _arc$anticlockwise !== void 0 ? _arc$anticlockwise : false);
+    return true;
+  };
+};
+var traceRectangle = function traceRectangle(rectangle) {
+  return function (ctx, offset) {
+    var _rectangle$getBoundin = rectangle.getBoundingBox(offset),
+        left = _rectangle$getBoundin.left,
+        top = _rectangle$getBoundin.top;
+
+    ctx.beginPath();
+    ctx.rect(left + rectangle.borderWidth / 2, top + rectangle.borderWidth / 2, rectangle.width - rectangle.borderWidth, rectangle.height - rectangle.borderWidth);
+    return true;
+  };
+};
+var drawImage = function drawImage(image) {
+  return function (ctx, offset) {
+    var _image$getBoundingBox = image.getBoundingBox(offset),
+        left = _image$getBoundingBox.left,
+        top = _image$getBoundingBox.top;
+
+    ctx.drawImage(image.image, left + image.borderWidth, top + image.borderWidth, image.width - image.borderWidth * 2, image.height - image.borderWidth * 2);
+    return true;
+  };
+};
+var loadImage = function loadImage(image) {
+  return function (ctx, offset) {
+    image.image = image.imageCache.read(image.src);
+
+    if (!image.image) {
+      image.image = new window.Image();
+
+      image.image.onload = function () {
+        var customEvent = new CustomEvent('load', {
+          bubbles: true
+        });
+        image.dispatchEvent(customEvent);
+      };
+
+      image.image.src = image.src;
+      image.imageCache.write(image.src, image.image);
+    }
+
+    return image.image.complete;
+  };
+};
+var rotateAndScale = function rotateAndScale(shape) {
+  return function (ctx, offset) {
+    var scaleX = shape.scaleX * offset.scaleX;
+    var scaleY = shape.scaleY * offset.scaleY;
+    var rotation = shape.rotation + offset.rotation;
+
+    if (scaleX !== 1 || scaleY !== 1 || rotation !== 0) {
+      var translate = shape.getTranslationCenter(offset);
+      ctx.translate(translate.x, translate.y);
+      ctx.scale(scaleX, scaleY);
+      ctx.rotate(rotation);
+      ctx.translate(-translate.x, -translate.y);
+    }
+
+    return true;
+  };
+};
+var fillAndStroke = function fillAndStroke(shape) {
+  return function (ctx, offset) {
+    var globalAlpha = shape.opacity * offset.opacity;
+
+    if (globalAlpha !== 1) {
+      ctx.globalAlpha = globalAlpha;
+    }
+
+    if (shape.shadowColor) {
+      ctx.shadowColor = shape.shadowColor;
+    }
+
+    if (shape.shadowBlur !== 0) {
+      ctx.shadowBlur = shape.shadowBlur;
+    }
+
+    if (shape.shadowOffsetX !== 0) {
+      ctx.shadowOffsetX = shape.shadowOffsetX;
+    }
+
+    if (shape.shadowOffsetY !== 0) {
+      ctx.shadowOffsetY = shape.shadowOffsetY;
+    }
+
+    if (shape.backgroundColor) {
+      ctx.fillStyle = shape.backgroundColor;
+      ctx.fill();
+    }
+
+    if (shape.borderDash.length) {
+      ctx.setLineDash(shape.borderDash);
+    }
+
+    if (shape.borderColor && shape.borderWidth) {
+      ctx.strokeStyle = shape.borderColor;
+      ctx.lineWidth = shape.borderWidth;
+      ctx.stroke();
+    }
+
+    return true;
+  };
 };
 
 var _excluded$2 = ["children"];
@@ -770,22 +836,11 @@ var CanvasRectangle = /*#__PURE__*/function (_AbstractShape) {
       };
     }
   }, {
-    key: "trace",
-    value: function trace(ctx, offset) {
-      var _this$getBoundingBox2 = this.getBoundingBox(offset),
-          left = _this$getBoundingBox2.left,
-          top = _this$getBoundingBox2.top;
-
-      ctx.beginPath();
-      ctx.rect(left + this.borderWidth / 2, top + this.borderWidth / 2, this.width - this.borderWidth, this.height - this.borderWidth);
-      return true;
-    }
-  }, {
     key: "draw",
     value: function draw(ctx, offset) {
-      this.pipeline.push(this.rotateAndScale);
-      this.pipeline.push(this.trace);
-      this.pipeline.push(this.fillAndStroke);
+      this.pipeline.push(rotateAndScale(this));
+      this.pipeline.push(traceRectangle(this));
+      this.pipeline.push(fillAndStroke(this));
       this.drawPipeline(ctx, offset);
     }
   }], [{
@@ -975,47 +1030,13 @@ var CanvasImage = /*#__PURE__*/function (_CanvasRectangle) {
       this.setAttribute('src', value);
     }
   }, {
-    key: "loadImage",
-    value: function loadImage() {
-      var _this2 = this;
-
-      this.image = this.imageCache.read(this.src);
-
-      if (!this.image) {
-        this.image = new window.Image();
-
-        this.image.onload = function () {
-          var customEvent = new CustomEvent('load', {
-            bubbles: true
-          });
-
-          _this2.dispatchEvent(customEvent);
-        };
-
-        this.image.src = this.src;
-        this.imageCache.write(this.src, this.image);
-      }
-
-      return this.image.complete;
-    }
-  }, {
-    key: "drawImage",
-    value: function drawImage(ctx, offset) {
-      var _this$getBoundingBox = this.getBoundingBox(offset),
-          left = _this$getBoundingBox.left,
-          top = _this$getBoundingBox.top;
-
-      ctx.drawImage(this.image, left + this.borderWidth, top + this.borderWidth, this.width - this.borderWidth * 2, this.height - this.borderWidth * 2);
-      return true;
-    }
-  }, {
     key: "draw",
     value: function draw(ctx, offset) {
-      this.pipeline.push(this.loadImage);
-      this.pipeline.push(this.rotateAndScale);
-      this.pipeline.push(this.trace);
-      this.pipeline.push(this.fillAndStroke);
-      this.pipeline.push(this.drawImage);
+      this.pipeline.push(loadImage(this));
+      this.pipeline.push(rotateAndScale(this));
+      this.pipeline.push(traceRectangle(this));
+      this.pipeline.push(fillAndStroke(this));
+      this.pipeline.push(drawImage(this));
       this.drawPipeline(ctx, offset);
     }
   }], [{
@@ -1084,24 +1105,11 @@ var CanvasCircle = /*#__PURE__*/function (_AbstractShape) {
       };
     }
   }, {
-    key: "trace",
-    value: function trace(ctx, offset) {
-      console.log(this.getBoundingBox(offset));
-
-      var _this$getBoundingBox2 = this.getBoundingBox(offset),
-          left = _this$getBoundingBox2.left,
-          top = _this$getBoundingBox2.top;
-
-      ctx.beginPath();
-      ctx.arc(left + this.radius, top + this.radius, this.radius - this.borderWidth / 2, 0, 2 * Math.PI);
-      return true;
-    }
-  }, {
     key: "draw",
     value: function draw(ctx, offset) {
-      this.pipeline.push(this.rotateAndScale);
-      this.pipeline.push(this.trace);
-      this.pipeline.push(this.fillAndStroke);
+      this.pipeline.push(rotateAndScale(this));
+      this.pipeline.push(traceArc(this));
+      this.pipeline.push(fillAndStroke(this));
       this.drawPipeline(ctx, offset);
     }
   }], [{
