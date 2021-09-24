@@ -1,9 +1,9 @@
-#React 2D Canvas
+# React 2D Canvas
 
 Draw text and shapes on a HTML Canvas element using a declarative JSX syntax
 
 ## Property Inheritance
-Child elements will be affected by the following properties of their parent element:
+Child elements will be affected by the following properties of their parent elements:
 
 `x` – Child's x-coordinate will be an offset of the parent x-coordinates
 
