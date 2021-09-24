@@ -628,16 +628,11 @@ var AbstractShape = /*#__PURE__*/function (_HTMLElement) {
       var rotation = this.rotation + offset.rotation;
 
       if (scaleX !== 1 || scaleY !== 1 || rotation !== 0) {
-        var _this$getBoundingBox = this.getBoundingBox(offset),
-            top = _this$getBoundingBox.top,
-            left = _this$getBoundingBox.left;
-
-        var translateX = left + this.width * this.originX;
-        var translateY = top + this.height * this.originY;
-        ctx.translate(translateX, translateY);
+        var translate = this.getTranslationCenter(offset);
+        ctx.translate(translate.x, translate.y);
         ctx.scale(scaleX, scaleY);
         ctx.rotate(rotation);
-        ctx.translate(-translateX, -translateY);
+        ctx.translate(-translate.x, -translate.y);
       }
 
       return true;
@@ -710,7 +705,7 @@ var registerCustomElement = function registerCustomElement(name, constructor) {
   customElements.get(name) || customElements.define(name, constructor);
 };
 
-var _excluded$1 = ["children"];
+var _excluded$2 = ["children"];
 var CanvasRectangle = /*#__PURE__*/function (_AbstractShape) {
   _inherits(CanvasRectangle, _AbstractShape);
 
@@ -753,11 +748,25 @@ var CanvasRectangle = /*#__PURE__*/function (_AbstractShape) {
       };
     }
   }, {
+    key: "getTranslationCenter",
+    value: function getTranslationCenter(offset) {
+      var _this$getBoundingBox = this.getBoundingBox(offset),
+          top = _this$getBoundingBox.top,
+          left = _this$getBoundingBox.left;
+
+      var x = left + this.width * this.originX;
+      var y = top + this.height * this.originY;
+      return {
+        x: x,
+        y: y
+      };
+    }
+  }, {
     key: "trace",
     value: function trace(ctx, offset) {
-      var _this$getBoundingBox = this.getBoundingBox(offset),
-          left = _this$getBoundingBox.left,
-          top = _this$getBoundingBox.top;
+      var _this$getBoundingBox2 = this.getBoundingBox(offset),
+          left = _this$getBoundingBox2.left,
+          top = _this$getBoundingBox2.top;
 
       ctx.beginPath();
       ctx.rect(left + this.borderWidth / 2, top + this.borderWidth / 2, this.width - this.borderWidth, this.height - this.borderWidth);
@@ -783,7 +792,7 @@ var CanvasRectangle = /*#__PURE__*/function (_AbstractShape) {
 registerCustomElement('canvas-rectangle', CanvasRectangle);
 function Rectangle(_ref) {
   var children = _ref.children,
-      props = _objectWithoutProperties(_ref, _excluded$1);
+      props = _objectWithoutProperties(_ref, _excluded$2);
 
   return /*#__PURE__*/React.createElement("canvas-rectangle", props, children);
 }
@@ -933,7 +942,7 @@ var Lru = /*#__PURE__*/function (_Symbol$iterator) {
   return Lru;
 }(Symbol.iterator);
 
-var _excluded = ["children"];
+var _excluded$1 = ["children"];
 var CanvasImage = /*#__PURE__*/function (_CanvasRectangle) {
   _inherits(CanvasImage, _CanvasRectangle);
 
@@ -1013,9 +1022,95 @@ var CanvasImage = /*#__PURE__*/function (_CanvasRectangle) {
 registerCustomElement('canvas-image', CanvasImage);
 function Image(_ref) {
   var children = _ref.children,
-      props = _objectWithoutProperties(_ref, _excluded);
+      props = _objectWithoutProperties(_ref, _excluded$1);
 
   return /*#__PURE__*/React.createElement("canvas-image", props, children);
 }
 
-export { Image, Layer, Rectangle, ScaleMode, Stage };
+var _excluded = ["children"];
+var CanvasCircle = /*#__PURE__*/function (_AbstractShape) {
+  _inherits(CanvasCircle, _AbstractShape);
+
+  var _super = _createSuper(CanvasCircle);
+
+  function CanvasCircle() {
+    _classCallCheck(this, CanvasCircle);
+
+    return _super.apply(this, arguments);
+  }
+
+  _createClass(CanvasCircle, [{
+    key: "radius",
+    get: function get() {
+      return this.getNumericAttribute('radius');
+    },
+    set: function set(value) {
+      this.setAttribute('radius', value);
+    }
+  }, {
+    key: "getBoundingBox",
+    value: function getBoundingBox(offset) {
+      var left = this.x + offset.x - this.radius * 2 * this.originX;
+      var top = this.y + offset.y - this.radius * 2 * this.originY;
+      var right = left + this.radius * 2;
+      var bottom = top + this.radius * 2;
+      return {
+        left: left,
+        right: right,
+        top: top,
+        bottom: bottom
+      };
+    }
+  }, {
+    key: "getTranslationCenter",
+    value: function getTranslationCenter(offset) {
+      var _this$getBoundingBox = this.getBoundingBox(offset),
+          top = _this$getBoundingBox.top,
+          left = _this$getBoundingBox.left;
+
+      var x = left + this.radius * this.originX * 2;
+      var y = top + this.radius * this.originY * 2;
+      return {
+        x: x,
+        y: y
+      };
+    }
+  }, {
+    key: "trace",
+    value: function trace(ctx, offset) {
+      console.log(this.getBoundingBox(offset));
+
+      var _this$getBoundingBox2 = this.getBoundingBox(offset),
+          left = _this$getBoundingBox2.left,
+          top = _this$getBoundingBox2.top;
+
+      ctx.beginPath();
+      ctx.arc(left + this.radius, top + this.radius, this.radius - this.borderWidth / 2, 0, 2 * Math.PI);
+      return true;
+    }
+  }, {
+    key: "draw",
+    value: function draw(ctx, offset) {
+      this.pipeline.push(this.rotateAndScale);
+      this.pipeline.push(this.trace);
+      this.pipeline.push(this.fillAndStroke);
+      this.drawPipeline(ctx, offset);
+    }
+  }], [{
+    key: "observedAttributes",
+    get: function get() {
+      return [].concat(_toConsumableArray(AbstractShape.observedAttributes), ['radius']);
+    }
+  }]);
+
+  return CanvasCircle;
+}(AbstractShape);
+registerCustomElement('canvas-circle', CanvasCircle);
+function Circle(_ref) {
+  var children = _ref.children,
+      props = _objectWithoutProperties(_ref, _excluded);
+
+  return /*#__PURE__*/React.createElement("canvas-circle", props, children);
+}
+
+export { Circle, Image, Layer, Rectangle, ScaleMode, Stage };

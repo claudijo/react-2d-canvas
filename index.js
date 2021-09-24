@@ -4,4 +4,5 @@ export { default as Stage } from './lib/components/stage';
 export { ScaleMode } from './lib/components/stage';
 export { default as Layer } from './lib/components/layer';
 export { default as Rectangle } from './lib/elements/rectangle';
-export { default as Image} from './lib/elements/image';
+export { default as Image } from './lib/elements/image';
+export { default as Circle } from './lib/elements/circle';
