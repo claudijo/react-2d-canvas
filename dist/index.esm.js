@@ -656,19 +656,6 @@ var registerCustomElement = function registerCustomElement(name, constructor) {
   customElements.get(name) || customElements.define(name, constructor);
 };
 
-var traceArc = function traceArc(arc) {
-  return function (ctx, offset) {
-    var _arc$startAngle, _arc$endAngle, _arc$anticlockwise;
-
-    var _arc$getBoundingBox = arc.getBoundingBox(offset),
-        left = _arc$getBoundingBox.left,
-        top = _arc$getBoundingBox.top;
-
-    ctx.beginPath();
-    ctx.arc(left + arc.radius, top + arc.radius, arc.radius - arc.borderWidth / 2, (_arc$startAngle = arc.startAngle) !== null && _arc$startAngle !== void 0 ? _arc$startAngle : 0, (_arc$endAngle = arc.endAngle) !== null && _arc$endAngle !== void 0 ? _arc$endAngle : 2 * Math.PI, (_arc$anticlockwise = arc.anticlockwise) !== null && _arc$anticlockwise !== void 0 ? _arc$anticlockwise : false);
-    return true;
-  };
-};
 var traceRectangle = function traceRectangle(rectangle) {
   return function (ctx, offset) {
     var _rectangle$getBoundin = rectangle.getBoundingBox(offset),
@@ -680,37 +667,7 @@ var traceRectangle = function traceRectangle(rectangle) {
     return true;
   };
 };
-var drawImage = function drawImage(image) {
-  return function (ctx, offset) {
-    var _image$getBoundingBox = image.getBoundingBox(offset),
-        left = _image$getBoundingBox.left,
-        top = _image$getBoundingBox.top;
 
-    ctx.drawImage(image.image, left + image.borderWidth, top + image.borderWidth, image.width - image.borderWidth * 2, image.height - image.borderWidth * 2);
-    return true;
-  };
-};
-var loadImage = function loadImage(image) {
-  return function (ctx, offset) {
-    image.image = image.imageCache.read(image.src);
-
-    if (!image.image) {
-      image.image = new window.Image();
-
-      image.image.onload = function () {
-        var customEvent = new CustomEvent('load', {
-          bubbles: true
-        });
-        image.dispatchEvent(customEvent);
-      };
-
-      image.image.src = image.src;
-      image.imageCache.write(image.src, image.image);
-    }
-
-    return image.image.complete;
-  };
-};
 var rotateAndScale = function rotateAndScale(shape) {
   return function (ctx, offset) {
     var scaleX = shape.scaleX * offset.scaleX;
@@ -997,6 +954,38 @@ var Lru = /*#__PURE__*/function (_Symbol$iterator) {
   return Lru;
 }(Symbol.iterator);
 
+var drawImage = function drawImage(image) {
+  return function (ctx, offset) {
+    var _image$getBoundingBox = image.getBoundingBox(offset),
+        left = _image$getBoundingBox.left,
+        top = _image$getBoundingBox.top;
+
+    ctx.drawImage(image.image, left + image.borderWidth, top + image.borderWidth, image.width - image.borderWidth * 2, image.height - image.borderWidth * 2);
+    return true;
+  };
+};
+var loadImage = function loadImage(image) {
+  return function (ctx, offset) {
+    image.image = image.imageCache.read(image.src);
+
+    if (!image.image) {
+      image.image = new window.Image();
+
+      image.image.onload = function () {
+        var customEvent = new CustomEvent('load', {
+          bubbles: true
+        });
+        image.dispatchEvent(customEvent);
+      };
+
+      image.image.src = image.src;
+      image.imageCache.write(image.src, image.image);
+    }
+
+    return image.image.complete;
+  };
+};
+
 var _excluded$1 = ["children"];
 var CanvasImage = /*#__PURE__*/function (_CanvasRectangle) {
   _inherits(CanvasImage, _CanvasRectangle);
@@ -1047,6 +1036,20 @@ function Image(_ref) {
 
   return /*#__PURE__*/React.createElement("canvas-image", props, children);
 }
+
+var traceArc = function traceArc(arc) {
+  return function (ctx, offset) {
+    var _arc$startAngle, _arc$endAngle, _arc$anticlockwise;
+
+    var _arc$getBoundingBox = arc.getBoundingBox(offset),
+        left = _arc$getBoundingBox.left,
+        top = _arc$getBoundingBox.top;
+
+    ctx.beginPath();
+    ctx.arc(left + arc.radius, top + arc.radius, arc.radius - arc.borderWidth / 2, (_arc$startAngle = arc.startAngle) !== null && _arc$startAngle !== void 0 ? _arc$startAngle : 0, (_arc$endAngle = arc.endAngle) !== null && _arc$endAngle !== void 0 ? _arc$endAngle : 2 * Math.PI, (_arc$anticlockwise = arc.anticlockwise) !== null && _arc$anticlockwise !== void 0 ? _arc$anticlockwise : false);
+    return true;
+  };
+};
 
 var _excluded = ["children"];
 var CanvasCircle = /*#__PURE__*/function (_AbstractShape) {
