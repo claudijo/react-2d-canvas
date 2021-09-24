@@ -1211,10 +1211,10 @@ function memoize(fn, cache) {
   };
 }
 
-var measureText = memoize(function (fontVariant, fontSize, fontFamily, baseline, align, text) {
+var measureText = memoize(function (style, weight, size, family, baseline, align, text) {
   var canvas = document.createElement('canvas');
   var ctx = canvas.getContext('2d');
-  ctx.font = "".concat(fontVariant, " ").concat(fontSize, "px ").concat(fontFamily);
+  ctx.font = "".concat(style, " ").concat(weight, " ").concat(size, "px ").concat(family);
   ctx.textBaseline = baseline;
   ctx.textAlign = align;
   return ctx.measureText(text);
@@ -1234,19 +1234,19 @@ var cropEnd = function cropEnd(text) {
 
 var fillAndStrokeText = function fillAndStrokeText(text) {
   return function (ctx, offset) {
-    var textMetrics = measureText(text.fontVariant, text.fontSize, text.fontFamily, text.baseline, text.align, text.textContent);
+    var textMetrics = measureText(text.style, text.weight, text.size, text.family, text.baseline, text.align, text.textContent);
     var width = Math.abs(textMetrics.actualBoundingBoxLeft) + Math.abs(textMetrics.actualBoundingBoxRight);
     var textContent = text.textContent;
 
     while (textContent !== '' && width > text.maxWidth) {
       textContent = cropEnd(textContent);
 
-      var _textMetrics = measureText(text.fontVariant, text.fontSize, text.fontFamily, text.baseline, text.align, textContent);
+      var _textMetrics = measureText(text.style, text.weight, text.size, text.family, text.baseline, text.align, textContent);
 
       width = Math.abs(_textMetrics.actualBoundingBoxLeft) + Math.abs(_textMetrics.actualBoundingBoxRight);
     }
 
-    ctx.font = "".concat(text.fontVariant, " ").concat(text.fontSize, "px ").concat(text.fontFamily);
+    ctx.font = "".concat(text.style, " ").concat(text.weight, " ").concat(text.size, "px ").concat(text.family);
     ctx.textBaseline = text.baseline;
     ctx.textAlign = text.align;
     var x = text.x + offset.x;
@@ -1278,28 +1278,36 @@ var CanvasLabel = /*#__PURE__*/function (_AbstractShape) {
   }
 
   _createClass(CanvasLabel, [{
-    key: "fontSize",
+    key: "size",
     get: function get() {
-      return this.getNumericAttribute('fontSize', 10);
+      return this.getNumericAttribute('size', 10);
     },
     set: function set(value) {
-      this.setAttribute('fontSize', value);
+      this.setAttribute('size', value);
     }
   }, {
-    key: "fontFamily",
+    key: "family",
     get: function get() {
-      return this.getTextualAttribute('fontFamily', 'sans-serif');
+      return this.getTextualAttribute('family', 'sans-serif');
     },
     set: function set(value) {
-      this.setAttribute('fontFamily', value);
+      this.setAttribute('family', value);
     }
   }, {
-    key: "fontVariant",
+    key: "style",
     get: function get() {
-      return this.getTextualAttribute('fontVariant', 'normal');
+      return this.getTextualAttribute('style', '');
     },
     set: function set(value) {
-      this.setAttribute('fontVariant', value);
+      this.setAttribute('style', value);
+    }
+  }, {
+    key: "weight",
+    get: function get() {
+      return this.getTextualAttribute('weight', '');
+    },
+    set: function set(value) {
+      this.setAttribute('weight', value);
     }
   }, {
     key: "color",
@@ -1364,7 +1372,7 @@ var CanvasLabel = /*#__PURE__*/function (_AbstractShape) {
   }], [{
     key: "observedAttributes",
     get: function get() {
-      return [].concat(_toConsumableArray(AbstractShape.observedAttributes), ['color', 'fontsize', 'fontFamily', 'fontVariant', 'baseline', 'align', 'maxwidth']);
+      return [].concat(_toConsumableArray(AbstractShape.observedAttributes), ['color', 'size', 'family', 'style', 'weight', 'baseline', 'align', 'maxwidth']);
     }
   }]);
 
