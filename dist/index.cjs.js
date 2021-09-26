@@ -683,6 +683,27 @@ var traceRectangle = function traceRectangle(rectangle) {
     return true;
   };
 };
+var traceRoundedRectangle = function traceRoundedRectangle(roundedRectangle) {
+  return function (ctx, offset) {
+    var _roundedRectangle$get = roundedRectangle.getBoundingBox(offset),
+        left = _roundedRectangle$get.left,
+        top = _roundedRectangle$get.top;
+
+    var radius = roundedRectangle.radius;
+    var x = left + roundedRectangle.borderWidth / 2;
+    var y = top + roundedRectangle.borderWidth / 2;
+    var width = roundedRectangle.width - roundedRectangle.borderWidth;
+    var height = roundedRectangle.height - roundedRectangle.borderWidth;
+    ctx.beginPath();
+    ctx.moveTo(x + radius, y);
+    ctx.arcTo(x + width, y, x + width, y + height, radius);
+    ctx.arcTo(x + width, y + height, x, y + height, radius);
+    ctx.arcTo(x, y + height, x, y, radius);
+    ctx.arcTo(x, y, x + width, y, radius);
+    ctx.closePath();
+    return true;
+  };
+};
 
 var rotateAndScale = function rotateAndScale(shape) {
   return function (ctx, offset) {
@@ -749,7 +770,7 @@ var fillAndStroke = function fillAndStroke(shape) {
   };
 };
 
-var _excluded$4 = ["children"];
+var _excluded$5 = ["children"];
 var CanvasRectangle = /*#__PURE__*/function (_AbstractShape) {
   _inherits(CanvasRectangle, _AbstractShape);
 
@@ -826,7 +847,7 @@ var CanvasRectangle = /*#__PURE__*/function (_AbstractShape) {
 registerCustomElement('canvas-rectangle', CanvasRectangle);
 function Rectangle(_ref) {
   var children = _ref.children,
-      props = _objectWithoutProperties(_ref, _excluded$4);
+      props = _objectWithoutProperties(_ref, _excluded$5);
 
   return /*#__PURE__*/React__default["default"].createElement("canvas-rectangle", props, children);
 }
@@ -1008,7 +1029,7 @@ var loadImage = function loadImage(image) {
   };
 };
 
-var _excluded$3 = ["children"];
+var _excluded$4 = ["children"];
 var CanvasImage = /*#__PURE__*/function (_CanvasRectangle) {
   _inherits(CanvasImage, _CanvasRectangle);
 
@@ -1055,7 +1076,7 @@ var CanvasImage = /*#__PURE__*/function (_CanvasRectangle) {
 registerCustomElement('canvas-image', CanvasImage);
 function Image$1(_ref) {
   var children = _ref.children,
-      props = _objectWithoutProperties(_ref, _excluded$3);
+      props = _objectWithoutProperties(_ref, _excluded$4);
 
   return /*#__PURE__*/React__default["default"].createElement("canvas-image", props, children);
 }
@@ -1074,7 +1095,7 @@ var traceArc = function traceArc(arc) {
   };
 };
 
-var _excluded$2 = ["children"];
+var _excluded$3 = ["children"];
 var CanvasCircle = /*#__PURE__*/function (_AbstractShape) {
   _inherits(CanvasCircle, _AbstractShape);
 
@@ -1143,12 +1164,12 @@ var CanvasCircle = /*#__PURE__*/function (_AbstractShape) {
 registerCustomElement('canvas-circle', CanvasCircle);
 function Circle(_ref) {
   var children = _ref.children,
-      props = _objectWithoutProperties(_ref, _excluded$2);
+      props = _objectWithoutProperties(_ref, _excluded$3);
 
   return /*#__PURE__*/React__default["default"].createElement("canvas-circle", props, children);
 }
 
-var _excluded$1 = ["children"];
+var _excluded$2 = ["children"];
 var CanvasArc = /*#__PURE__*/function (_CanvasCircle) {
   _inherits(CanvasArc, _CanvasCircle);
 
@@ -1196,7 +1217,7 @@ var CanvasArc = /*#__PURE__*/function (_CanvasCircle) {
 registerCustomElement('canvas-arc', CanvasArc);
 function Arc(_ref) {
   var children = _ref.children,
-      props = _objectWithoutProperties(_ref, _excluded$1);
+      props = _objectWithoutProperties(_ref, _excluded$2);
 
   return /*#__PURE__*/React__default["default"].createElement("canvas-arc", props, children);
 }
@@ -1244,36 +1265,35 @@ var fillAndStrokeText = function fillAndStrokeText(text) {
   return function (ctx, offset) {
     var textMetrics = measureText(text.style, text.weight, text.size, text.family, text.baseline, text.align, text.textContent);
     var width = Math.abs(textMetrics.actualBoundingBoxLeft) + Math.abs(textMetrics.actualBoundingBoxRight);
+    var height = textMetrics.actualBoundingBoxAscent + textMetrics.actualBoundingBoxDescent;
     var textContent = text.textContent;
 
     while (textContent !== '' && width > text.maxWidth) {
       textContent = cropEnd(textContent);
-
-      var _textMetrics = measureText(text.style, text.weight, text.size, text.family, text.baseline, text.align, textContent);
-
-      width = Math.abs(_textMetrics.actualBoundingBoxLeft) + Math.abs(_textMetrics.actualBoundingBoxRight);
+      textMetrics = measureText(text.style, text.weight, text.size, text.family, text.baseline, text.align, textContent);
+      width = Math.abs(textMetrics.actualBoundingBoxLeft) + Math.abs(textMetrics.actualBoundingBoxRight);
     }
 
     ctx.font = "".concat(text.style, " ").concat(text.weight, " ").concat(text.size, "px ").concat(text.family);
     ctx.textBaseline = text.baseline;
     ctx.textAlign = text.align;
-    var x = text.x + offset.x;
-    var y = text.y + offset.y;
+    var x = text.x + offset.x - width * text.originX;
+    var y = text.y + offset.y - height * text.originY;
 
     if (text.color) {
       ctx.fillStyle = text.color;
-      ctx.fillText(textContent, x, y);
+      ctx.fillText(textContent, x - text.borderWidth / 2, y - text.borderWidth / 2);
     }
 
     if (text.borderColor && text.borderWidth) {
       ctx.strokeStyle = text.borderColor;
       ctx.lineWidth = text.borderWidth;
-      ctx.strokeText(textContent, x, y);
+      ctx.strokeText(textContent, x - text.borderWidth / 2, y - text.borderWidth / 2);
     }
   };
 };
 
-var _excluded = ["children"];
+var _excluded$1 = ["children"];
 var CanvasLabel = /*#__PURE__*/function (_AbstractShape) {
   _inherits(CanvasLabel, _AbstractShape);
 
@@ -1389,9 +1409,55 @@ var CanvasLabel = /*#__PURE__*/function (_AbstractShape) {
 registerCustomElement('canvas-label', CanvasLabel);
 function Label(_ref) {
   var children = _ref.children,
-      props = _objectWithoutProperties(_ref, _excluded);
+      props = _objectWithoutProperties(_ref, _excluded$1);
 
   return /*#__PURE__*/React__default["default"].createElement("canvas-label", props, children);
+}
+
+var _excluded = ["children"];
+var CanvasRoundedRectangle = /*#__PURE__*/function (_CanvasRectangle) {
+  _inherits(CanvasRoundedRectangle, _CanvasRectangle);
+
+  var _super = _createSuper(CanvasRoundedRectangle);
+
+  function CanvasRoundedRectangle() {
+    _classCallCheck(this, CanvasRoundedRectangle);
+
+    return _super.apply(this, arguments);
+  }
+
+  _createClass(CanvasRoundedRectangle, [{
+    key: "radius",
+    get: function get() {
+      return this.getNumericAttribute('radius');
+    },
+    set: function set(value) {
+      this.setAttribute('radius', value);
+    }
+  }, {
+    key: "draw",
+    value: function draw(ctx, offset) {
+      this.pipeline.push(rotateAndScale(this));
+      this.pipeline.push(traceRoundedRectangle(this));
+      this.pipeline.push(shade(this));
+      this.pipeline.push(fillAndStroke(this));
+      this.drawPipeline(ctx, offset);
+    }
+  }], [{
+    key: "observedAttributes",
+    get: function get() {
+      return [].concat(_toConsumableArray(AbstractShape.observedAttributes), ['radius']);
+    }
+  }]);
+
+  return CanvasRoundedRectangle;
+}(CanvasRectangle);
+registerCustomElement('canvas-rounded-rectangle', CanvasRoundedRectangle);
+function RoundedRectangle(_ref) {
+  var children = _ref.children,
+      props = _objectWithoutProperties(_ref, _excluded);
+
+  return /*#__PURE__*/React__default["default"].createElement("canvas-rounded-rectangle", props, children);
 }
 
 exports.Arc = Arc;
@@ -1400,5 +1466,6 @@ exports.Image = Image$1;
 exports.Label = Label;
 exports.Layer = Layer;
 exports.Rectangle = Rectangle;
+exports.RoundedRectangle = RoundedRectangle;
 exports.ScaleMode = ScaleMode;
 exports.Stage = Stage;
