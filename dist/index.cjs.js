@@ -8,6 +8,44 @@ function _interopDefaultLegacy (e) { return e && typeof e === 'object' && 'defau
 
 var React__default = /*#__PURE__*/_interopDefaultLegacy(React);
 
+function ownKeys(object, enumerableOnly) {
+  var keys = Object.keys(object);
+
+  if (Object.getOwnPropertySymbols) {
+    var symbols = Object.getOwnPropertySymbols(object);
+
+    if (enumerableOnly) {
+      symbols = symbols.filter(function (sym) {
+        return Object.getOwnPropertyDescriptor(object, sym).enumerable;
+      });
+    }
+
+    keys.push.apply(keys, symbols);
+  }
+
+  return keys;
+}
+
+function _objectSpread2(target) {
+  for (var i = 1; i < arguments.length; i++) {
+    var source = arguments[i] != null ? arguments[i] : {};
+
+    if (i % 2) {
+      ownKeys(Object(source), true).forEach(function (key) {
+        _defineProperty(target, key, source[key]);
+      });
+    } else if (Object.getOwnPropertyDescriptors) {
+      Object.defineProperties(target, Object.getOwnPropertyDescriptors(source));
+    } else {
+      ownKeys(Object(source)).forEach(function (key) {
+        Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key));
+      });
+    }
+  }
+
+  return target;
+}
+
 function _classCallCheck(instance, Constructor) {
   if (!(instance instanceof Constructor)) {
     throw new TypeError("Cannot call a class as a function");
@@ -28,6 +66,21 @@ function _createClass(Constructor, protoProps, staticProps) {
   if (protoProps) _defineProperties(Constructor.prototype, protoProps);
   if (staticProps) _defineProperties(Constructor, staticProps);
   return Constructor;
+}
+
+function _defineProperty(obj, key, value) {
+  if (key in obj) {
+    Object.defineProperty(obj, key, {
+      value: value,
+      enumerable: true,
+      configurable: true,
+      writable: true
+    });
+  } else {
+    obj[key] = value;
+  }
+
+  return obj;
 }
 
 function _inherits(subClass, superClass) {
@@ -358,15 +411,94 @@ function Stage(_ref) {
   }, children)));
 }
 
-function Layer(_ref) {
-  var children = _ref.children;
-  var canvasElement = React.useRef(null);
+var registerCustomElement = function registerCustomElement(name, constructor) {
+  customElements.get(name) || customElements.define(name, constructor);
+};
+var hasMouseEventListeners = function hasMouseEventListeners(element) {
+  return !!element.onclick || !!element.onMouseDown || !!element.onmouseup || !!element.onmousedown || !!element.onmousemove || !!element.onmouseover || !!element.onmouseout;
+};
+var localCoordinatesFromMouseEvent = function localCoordinatesFromMouseEvent(event) {
+  var scale = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 1;
+  var rect = event.target.getBoundingClientRect();
+  var clientX = event.clientX,
+      clientY = event.clientY;
+  var x = (clientX - rect.x) / scale;
+  var y = (clientY - rect.y) / scale;
+  return {
+    x: x,
+    y: y
+  };
+};
+var createElement = function createElement(type) {
+  var props = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+  var element = document.createElement(type);
 
-  var _useContext = React.useContext(StageContext);
-      _useContext.scale;
-      var width = _useContext.width,
+  for (var _i = 0, _Object$keys = Object.keys(props); _i < _Object$keys.length; _i++) {
+    var key = _Object$keys[_i];
+    element[key] = props[key];
+  }
+
+  return element;
+};
+
+var ColorIncrementer = /*#__PURE__*/function () {
+  function ColorIncrementer() {
+    var step = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 4;
+
+    _classCallCheck(this, ColorIncrementer);
+
+    this.step = step;
+    this.rgb = [0, 0, 0];
+  }
+
+  _createClass(ColorIncrementer, [{
+    key: "reset",
+    value: function reset() {
+      this.rgb = [0, 0, 0];
+    }
+  }, {
+    key: "next",
+    value: function next() {
+      for (var index = 0; index < 3; index++) {
+        if (this.rgb[index] + this.step < 256) {
+          this.rgb[index] += this.step;
+          return "rgb(".concat(this.rgb.join(','), ")");
+        } else if (index < 2) {
+          this.rgb[index] = 0;
+        }
+      }
+
+      throw new Error('Color incrementer overflow');
+    }
+  }]);
+
+  return ColorIncrementer;
+}();
+
+var colorIncrementer = new ColorIncrementer();
+var hitElementMap = new Map();
+function Layer(_ref) {
+  var children = _ref.children,
+      onClick = _ref.onClick,
+      onMouseMove = _ref.onMouseMove,
+      onMouseDown = _ref.onMouseDown,
+      onMouseUp = _ref.onMouseUp,
+      onDoubleClick = _ref.onDoubleClick,
+      onContextMenu = _ref.onContextMenu,
+      onMouseOut = _ref.onMouseOut,
+      onMouseOver = _ref.onMouseOver;
+
+  var _useContext = React.useContext(StageContext),
+      scale = _useContext.scale,
+      width = _useContext.width,
       height = _useContext.height;
 
+  var hoveredElement = React.useRef(null);
+  var canvasElement = React.useRef(null);
+  var hitCanvasElement = React.useRef(createElement('canvas', {
+    width: width,
+    height: height
+  }));
   var drawChildren = React.useCallback(function (ctx, children) {
     var offset = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {
       x: 0,
@@ -378,6 +510,14 @@ function Layer(_ref) {
     };
     Array.from(children).forEach(function (child) {
       child.draw(ctx, offset);
+
+      if (hasMouseEventListeners(child)) {
+        var _ctx = hitCanvasElement.current.getContext('2d');
+
+        var color = colorIncrementer.next();
+        hitElementMap.set(color, child);
+        child.drawHitArea(_ctx, offset, color);
+      }
 
       if (child.children.length > 0) {
         drawChildren(ctx, child.children, {
@@ -394,8 +534,12 @@ function Layer(_ref) {
   React.useEffect(function () {
     var canvas = canvasElement.current;
     var ctx = canvas.getContext('2d');
+    var hitCanvas = hitCanvasElement.current;
+    var hitCtx = hitCanvas.getContext('2d');
     var onUpdate = throttle(function (event) {
-      ctx.clearRect(0, 0, canvasElement.current.width, canvasElement.current.height);
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      hitCtx.clearRect(0, 0, hitCanvas.width, hitCanvas.height);
+      colorIncrementer.reset();
       drawChildren(ctx, canvasElement.current.children);
       ctx.beginPath(); // Start a new path
 
@@ -422,13 +566,133 @@ function Layer(_ref) {
       canvas.removeEventListener('load', onUpdate);
     };
   }, [drawChildren]);
+
+  var getEventTargetAt = function getEventTargetAt(point) {
+    var ctx = hitCanvasElement.current.getContext('2d');
+    var pixel = ctx.getImageData(point.x, point.y, 1, 1).data;
+    var color = "rgb(".concat(pixel[0], ",").concat(pixel[1], ",").concat(pixel[2], ")");
+    return hitElementMap.get(color);
+  };
+
+  var dispatchEvent = function dispatchEvent(target, type) {
+    var extra = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
+    target.dispatchEvent(new MouseEvent(type, _objectSpread2(_objectSpread2({}, extra), {}, {
+      view: window,
+      bubbles: true,
+      cancelable: true
+    })));
+  };
+
+  var extraForEvent = function extraForEvent(event) {
+    var point = localCoordinatesFromMouseEvent(event, scale);
+    var altKey = event.altKey,
+        button = event.button,
+        buttons = event.buttons,
+        ctrlKey = event.ctrlKey,
+        metaKey = event.metaKey,
+        shiftKey = event.shiftKey;
+    return {
+      clientX: point.x,
+      clientY: point.y,
+      altKey: altKey,
+      button: button,
+      buttons: buttons,
+      ctrlKey: ctrlKey,
+      metaKey: metaKey,
+      shiftKey: shiftKey,
+      region: null // Missing extra properties to implement...
+      // movementX: 0,
+      // movementY: 0,
+      // offsetX: 0,
+      // offsetY: 0,
+      // pageX: 0,
+      // pageY: 0,
+      // relatedTarget: null,
+      // screenX: 0,
+      // screenY: 0,
+
+    };
+  };
+
+  var onMouseEvent = function onMouseEvent(event) {
+    if (event.target !== canvasElement.current) {
+      return;
+    }
+
+    var point = localCoordinatesFromMouseEvent(event, scale);
+    var target = getEventTargetAt(point);
+    var extra = extraForEvent(event);
+
+    if (target) {
+      dispatchEvent(target, event.type, extra);
+
+      if (event.type === 'mousemove') {
+        if (hoveredElement.current && target !== hoveredElement.current) {
+          dispatchEvent(hoveredElement.current, 'mouseout', extra);
+        }
+
+        if (hoveredElement.current !== target) {
+          hoveredElement.current = target;
+          dispatchEvent(target, 'mouseover', extra);
+        }
+      }
+    } else if (hoveredElement.current || event.type === 'mouseout' && hoveredElement.current // Check mouse out for whole canvas
+    ) {
+      dispatchEvent(hoveredElement.current, 'mouseout', extra);
+      hoveredElement.current = null;
+    }
+  };
+
+  var onClickProxy = function onClickProxy(event) {
+    onClick && onClick(event);
+    onMouseEvent(event);
+  };
+
+  var onMouseMoveProxy = function onMouseMoveProxy(event) {
+    onMouseMove && onMouseMove(event);
+    onMouseEvent(event);
+  };
+
+  var onMouseDownProxy = function onMouseDownProxy(event) {
+    onMouseDown && onMouseDown(event);
+    onMouseEvent(event);
+  };
+
+  var onMouseUpProxy = function onMouseUpProxy(event) {
+    onMouseUp && onMouseUp(event);
+    onMouseEvent(event);
+  };
+
+  var onDoubleClickProxy = function onDoubleClickProxy(event) {
+    onDoubleClick && onDoubleClick(event);
+    onMouseEvent(event);
+  };
+
+  var onContextMenuProxy = function onContextMenuProxy(event) {
+    onContextMenu && onContextMenu(event);
+    onMouseEvent(event);
+  };
+
+  var onMouseOutProxy = function onMouseOutProxy(event) {
+    onMouseOut && onMouseOut(event);
+    onMouseEvent(event);
+  };
+
   return /*#__PURE__*/React__default["default"].createElement("canvas", {
     style: {
       position: 'absolute'
     },
     width: width,
     height: height,
-    ref: canvasElement
+    ref: canvasElement,
+    onClick: onClickProxy,
+    onMouseMove: onMouseMoveProxy,
+    onMouseDown: onMouseDownProxy,
+    onMouseUp: onMouseUpProxy,
+    onDoubleClick: onDoubleClickProxy,
+    onContextMenu: onContextMenuProxy,
+    onMouseOut: onMouseOutProxy,
+    onMouseOver: onMouseOver
   }, children);
 }
 
@@ -647,6 +911,16 @@ var AbstractShape = /*#__PURE__*/function (_HTMLElement) {
       throw new Error('Method must be implemented in sub class');
     }
   }, {
+    key: "drawHitArea",
+    value: function drawHitArea(ctx, offset, color) {
+      throw new Error('Method must be implemented in sub class');
+    }
+  }, {
+    key: "draw",
+    value: function draw(ctx, offset) {
+      throw new Error('Method must be implemented in sub class');
+    }
+  }, {
     key: "drawPipeline",
     value: function drawPipeline(ctx, offset) {
       ctx.save();
@@ -667,10 +941,6 @@ var AbstractShape = /*#__PURE__*/function (_HTMLElement) {
 
   return AbstractShape;
 }( /*#__PURE__*/_wrapNativeSuper(HTMLElement));
-
-var registerCustomElement = function registerCustomElement(name, constructor) {
-  customElements.get(name) || customElements.define(name, constructor);
-};
 
 var traceRectangle = function traceRectangle(rectangle) {
   return function (ctx, offset) {
@@ -751,12 +1021,14 @@ var shade = function shade(shape) {
 };
 var fillAndStroke = function fillAndStroke(shape) {
   return function (ctx, offset) {
+    var _shape$borderDash;
+
     if (shape.backgroundColor) {
       ctx.fillStyle = shape.backgroundColor;
       ctx.fill();
     }
 
-    if (shape.borderDash.length) {
+    if ((_shape$borderDash = shape.borderDash) !== null && _shape$borderDash !== void 0 && _shape$borderDash.length) {
       ctx.setLineDash(shape.borderDash);
     }
 
@@ -825,6 +1097,21 @@ var CanvasRectangle = /*#__PURE__*/function (_AbstractShape) {
         x: x,
         y: y
       };
+    }
+  }, {
+    key: "drawHitArea",
+    value: function drawHitArea(ctx, offset, color) {
+      var backgroundColor = this.backgroundColor,
+          borderColor = this.borderColor,
+          borderWidth = this.borderWidth;
+      this.pipeline.push(rotateAndScale(this));
+      this.pipeline.push(traceRectangle(this));
+      this.pipeline.push(fillAndStroke({
+        backgroundColor: backgroundColor ? color : undefined,
+        borderColor: borderColor ? color : undefined,
+        borderWidth: borderWidth
+      }));
+      this.drawPipeline(ctx, offset);
     }
   }, {
     key: "draw",
@@ -1433,6 +1720,21 @@ var CanvasRoundedRectangle = /*#__PURE__*/function (_CanvasRectangle) {
     },
     set: function set(value) {
       this.setAttribute('radius', value);
+    }
+  }, {
+    key: "drawHitArea",
+    value: function drawHitArea(ctx, offset, color) {
+      var backgroundColor = this.backgroundColor,
+          borderColor = this.borderColor,
+          borderWidth = this.borderWidth;
+      this.pipeline.push(rotateAndScale(this));
+      this.pipeline.push(traceRoundedRectangle(this));
+      this.pipeline.push(fillAndStroke({
+        backgroundColor: backgroundColor ? color : undefined,
+        borderColor: borderColor ? color : undefined,
+        borderWidth: borderWidth
+      }));
+      this.drawPipeline(ctx, offset);
     }
   }, {
     key: "draw",
