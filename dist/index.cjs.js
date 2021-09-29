@@ -945,10 +945,12 @@ var traceRectangle = function traceRectangle(rectangle) {
   return function (ctx, offset) {
     var _rectangle$getBoundin = rectangle.getBoundingBox(offset),
         left = _rectangle$getBoundin.left,
-        top = _rectangle$getBoundin.top;
+        top = _rectangle$getBoundin.top,
+        right = _rectangle$getBoundin.right,
+        bottom = _rectangle$getBoundin.bottom;
 
     ctx.beginPath();
-    ctx.rect(left + rectangle.borderWidth / 2, top + rectangle.borderWidth / 2, rectangle.width - rectangle.borderWidth, rectangle.height - rectangle.borderWidth);
+    ctx.rect(left + rectangle.borderWidth / 2, top + rectangle.borderWidth / 2, right - left - rectangle.borderWidth, bottom - top - rectangle.borderWidth);
     return true;
   };
 };
@@ -956,13 +958,15 @@ var traceRoundedRectangle = function traceRoundedRectangle(roundedRectangle) {
   return function (ctx, offset) {
     var _roundedRectangle$get = roundedRectangle.getBoundingBox(offset),
         left = _roundedRectangle$get.left,
-        top = _roundedRectangle$get.top;
+        top = _roundedRectangle$get.top,
+        right = _roundedRectangle$get.right,
+        bottom = _roundedRectangle$get.bottom;
 
     var radius = roundedRectangle.radius;
     var x = left + roundedRectangle.borderWidth / 2;
     var y = top + roundedRectangle.borderWidth / 2;
-    var width = roundedRectangle.width - roundedRectangle.borderWidth;
-    var height = roundedRectangle.height - roundedRectangle.borderWidth;
+    var width = right - left - roundedRectangle.borderWidth;
+    var height = bottom - top - roundedRectangle.borderWidth;
     ctx.beginPath();
     ctx.moveTo(x + radius, y);
     ctx.arcTo(x + width, y, x + width, y + height, radius);
@@ -1525,17 +1529,15 @@ function Arc(_ref) {
 
 var fillAndStrokeText = function fillAndStrokeText(text) {
   return function (ctx, offset) {
-    ctx.font = "".concat(text.style, " ").concat(text.weight, " ").concat(text.size, "px ").concat(text.family);
+    ctx.font = "".concat(text.fontStyle, " ").concat(text.fontWeight, " ").concat(text.fontSize, "px ").concat(text.fontFamily);
     ctx.textBaseline = text.baseline;
     ctx.textAlign = text.align;
 
     var _text$cropAndMeasure = text.cropAndMeasure(),
-        textContent = _text$cropAndMeasure.textContent,
-        height = _text$cropAndMeasure.height,
-        width = _text$cropAndMeasure.width;
+        textContent = _text$cropAndMeasure.textContent;
 
-    var x = text.x + offset.x - width * text.originX;
-    var y = text.y + offset.y - height * text.originY;
+    var x = text.x + offset.x;
+    var y = text.y + offset.y;
 
     if (text.color) {
       ctx.fillStyle = text.color;
@@ -1553,14 +1555,12 @@ var traceTextBox = function traceTextBox(text) {
   return function (ctx, offset) {
     var _text$getBoundingBox = text.getBoundingBox(offset),
         left = _text$getBoundingBox.left,
-        top = _text$getBoundingBox.top;
-
-    var _text$cropAndMeasure2 = text.cropAndMeasure(),
-        height = _text$cropAndMeasure2.height,
-        width = _text$cropAndMeasure2.width;
+        top = _text$getBoundingBox.top,
+        right = _text$getBoundingBox.right,
+        bottom = _text$getBoundingBox.bottom;
 
     ctx.beginPath();
-    ctx.rect(left - text.borderWidth, top - text.borderWidth, width + text.borderWidth, height + text.borderWidth);
+    ctx.rect(left - text.borderWidth / 2, top - text.borderWidth / 2, right - left, bottom - top);
     return true;
   };
 };
@@ -1617,36 +1617,36 @@ var CanvasLabel = /*#__PURE__*/function (_AbstractShape) {
   }
 
   _createClass(CanvasLabel, [{
-    key: "size",
+    key: "fontSize",
     get: function get() {
-      return this.getNumericAttribute('size', 10);
+      return this.getNumericAttribute('fontSize', 10);
     },
     set: function set(value) {
-      this.setAttribute('size', value);
+      this.setAttribute('fontSize', value);
     }
   }, {
-    key: "family",
+    key: "fontFamily",
     get: function get() {
-      return this.getTextualAttribute('family', 'sans-serif');
+      return this.getTextualAttribute('fontFamily', 'sans-serif');
     },
     set: function set(value) {
-      this.setAttribute('family', value);
+      this.setAttribute('fontFamily', value);
     }
   }, {
-    key: "style",
+    key: "fontStyle",
     get: function get() {
-      return this.getTextualAttribute('style', '');
+      return this.getTextualAttribute('fontStyle', '');
     },
     set: function set(value) {
-      this.setAttribute('style', value);
+      this.setAttribute('fontStyle', value);
     }
   }, {
-    key: "weight",
+    key: "fontWeight",
     get: function get() {
-      return this.getTextualAttribute('weight', '');
+      return this.getTextualAttribute('fontWeight', '');
     },
     set: function set(value) {
-      this.setAttribute('weight', value);
+      this.setAttribute('fontWeight', value);
     }
   }, {
     key: "color",
@@ -1681,43 +1681,51 @@ var CanvasLabel = /*#__PURE__*/function (_AbstractShape) {
       this.setAttribute('maxWidth', value);
     }
   }, {
-    key: "width",
+    key: "backgroundColor",
     get: function get() {
-      return 125;
+      return this.getAttribute('backgroundColor');
+    },
+    set: function set(value) {
+      this.setAttribute('backgroundColor', value);
     }
   }, {
-    key: "height",
-    get: function get() {
-      return 40;
+    key: "getTextMetrics",
+    value: function getTextMetrics(text) {
+      return measureText(this.fontStyle, this.fontWeight, this.fontSize, this.fontFamily, this.baseline, this.align, text);
     }
   }, {
     key: "cropAndMeasure",
     value: function cropAndMeasure() {
-      var textMetrics = measureText(this.style, this.weight, this.size, this.family, this.baseline, this.align, this.textContent);
-      var width = Math.abs(textMetrics.actualBoundingBoxLeft) + Math.abs(textMetrics.actualBoundingBoxRight);
-      var height = textMetrics.actualBoundingBoxAscent + textMetrics.actualBoundingBoxDescent;
       var textContent = this.textContent;
+      var textMetrics = this.getTextMetrics(textContent);
+      var width = textMetrics.actualBoundingBoxLeft + textMetrics.actualBoundingBoxRight;
 
       while (textContent !== '' && width > this.maxWidth) {
         textContent = cropEnd(textContent);
-        textMetrics = textMetrics = measureText(this.style, this.weight, this.size, this.family, this.baseline, this.align, this.textContent);
-        width = Math.abs(textMetrics.actualBoundingBoxLeft) + Math.abs(textMetrics.actualBoundingBoxRight);
+        textMetrics = this.getTextMetrics(textContent);
+        width = textMetrics.actualBoundingBoxLeft + textMetrics.actualBoundingBoxRight;
       }
 
+      var height = textMetrics.actualBoundingBoxAscent + textMetrics.actualBoundingBoxDescent;
       return {
         textContent: textContent,
         height: height,
-        width: width
+        width: width,
+        textMetrics: textMetrics
       };
     }
   }, {
     key: "getBoundingBox",
     value: function getBoundingBox(offset) {
-      var textMetrics = measureText(this.style, this.weight, this.size, this.family, this.baseline, this.align, this.textContent);
+      var _this$cropAndMeasure = this.cropAndMeasure(),
+          textMetrics = _this$cropAndMeasure.textMetrics,
+          width = _this$cropAndMeasure.width,
+          height = _this$cropAndMeasure.height;
+
       var left = this.x + offset.x - textMetrics.actualBoundingBoxLeft;
-      var right = this.x + offset.x + textMetrics.actualBoundingBoxRight;
+      var right = left + width;
       var top = this.y + offset.y - textMetrics.actualBoundingBoxAscent;
-      var bottom = this.y + offset.y + textMetrics.actualBoundingBoxDescent;
+      var bottom = top + height;
       return {
         left: left,
         right: right,
@@ -1736,13 +1744,30 @@ var CanvasLabel = /*#__PURE__*/function (_AbstractShape) {
       };
     }
   }, {
+    key: "drawHitArea",
+    value: function drawHitArea(ctx, offset, color) {
+      var backgroundColor = this.backgroundColor,
+          borderColor = this.borderColor,
+          borderWidth = this.borderWidth;
+      this.pipeline.push(rotateAndScale(this));
+      this.pipeline.push(traceTextBox(this));
+      this.pipeline.push(fillAndStroke({
+        backgroundColor: backgroundColor ? color : undefined,
+        borderColor: borderColor ? color : undefined,
+        borderWidth: borderWidth
+      }));
+      this.drawPipeline(ctx, offset);
+    }
+  }, {
     key: "draw",
     value: function draw(ctx, offset) {
       this.pipeline.push(rotateAndScale(this));
       this.pipeline.push(shade(this));
       this.pipeline.push(traceTextBox(this));
       this.pipeline.push(fillAndStroke({
-        backgroundColor: 'red'
+        backgroundColor: this.backgroundColor,
+        borderColor: this.backgroundColor,
+        borderWidth: this.borderWidth
       }));
       this.pipeline.push(fillAndStrokeText(this));
       this.drawPipeline(ctx, offset);
@@ -1750,7 +1775,7 @@ var CanvasLabel = /*#__PURE__*/function (_AbstractShape) {
   }], [{
     key: "observedAttributes",
     get: function get() {
-      return [].concat(_toConsumableArray(AbstractShape.observedAttributes), ['color', 'size', 'family', 'style', 'weight', 'baseline', 'align', 'maxwidth']);
+      return [].concat(_toConsumableArray(AbstractShape.observedAttributes), ['color', 'fontsize', 'fontfamily', 'fontstyle', 'fontweight', 'baseline', 'align', 'maxwidth', 'backgroundcolor']);
     }
   }]);
 
