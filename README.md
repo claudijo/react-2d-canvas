@@ -3,6 +3,7 @@
 Draw text and shapes on a HTML Canvas element using a declarative JSX syntax
 
 ## Property Inheritance
+
 Child elements will be affected by the following properties of their parent elements:
 
 `x` – Child's x-coordinate will be an offset of the parent's x-coordinate
@@ -78,31 +79,131 @@ function App() {
   );
 }
 ```
+
 ## API
-All components exported separately from the main package.
+
+All components and the `ScaleMode` name space are exported individually from the main package.
+
+```js
+import { Stage, ScaleMode, Layer, Rectangle /* etc */ } from 'react-2d-canvas';
+```
 
 ### \<Stage>
-The Stage component is the main container component that can has one or several `<Layer>` child components. It handles the dimensions and scaling of the child `<Layer>` components.
 
-Property | Description
+The `<Stage>` component is the outermost container component that should have one or several `<Layer>` child components.
+The `<Stage>` component handles the dimensions and scaling of the child `<Layer>` components.
+
+```jsx
+import { Stage, ScaleMode } from 'react-2d-canvas';
+
+<Stage width={600} height={400} scaleMode={ScaleMode.SCALE_TO_FIT}>
+  {/*...*/}
+</Stage>
+```
+
+Properties | &nbsp;
 --- | ---
 `scaleMode` | Controlling how the child `<Layer>` components scale. Available options are `ScaleMode.SCALE_TO_FIT` or `ScaleMode.SCALE_TO_COVER`
 `width` | Setting the width of the child `<Layer>` components.
 `height` | Setting the height of the child `<Layer>` components.
 `backgroundColor` | Setting the background color for the `<Stage>` component. Accepts a CSS color value.
 
-### Layer
-Each `<Layer>` component holds an HTML Canvas element. Using multiple sibling `<Layer>` components can be a way of optimizing canvas redrawing when animating content, see for instance [Use multiple layered canvases for complex scenes](https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API/Tutorial/Optimizing_canvas#use_multiple_layered_canvases_for_complex_scenes).
+### \<Layer>
 
-The `<Layer>` compoents accept a number of even handler properties that are attached to the underlying canvas element. Typically, you would not attach the event handlers to the `<Layer>` element, and instead attach them to   
+```js
+import { 
+  Stage, 
+  ScaleMode, 
+  Layer 
+} from 'react-2d-canvas';
 
-Property | Description
+<Stage 
+  width={600} 
+  height={400} 
+  scaleMode={ScaleMode.SCALE_TO_FIT}
+>
+  <Layer>
+    {/* Static background comoponents */}
+  </Layer>
+  <Layer>
+    {/* Game play action and animation components */}
+  </Layer>
+  <Layer>
+    {/* UI and interactive components */}
+  </Layer>
+</Stage>
+```
+
+Each `<Layer>` component holds an HTML Canvas element. Using multiple sibling `<Layer>` components can be a way of
+optimizing canvas redrawing when animating content. See for
+instance [Use multiple layered canvases for complex scenes](https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API/Tutorial/Optimizing_canvas#use_multiple_layered_canvases_for_complex_scenes)
+for a detailed explanation of this optimization strategy.
+
+The follwoing event handlers passed to the `<Layer>` component will be forwarded to the underlying HTML `<canvas>`
+element. Note that event handlers are typically not passed to the `<Layer>` component. Instead, attach them directly on
+the different child components, such as `<Rectangle>`, `<Circle>` etc.
+
+* onClick,
+* onMouseMove,
+* onMouseDown,
+* onMouseUp,
+* onDoubleClick,
+* onContextMenu,
+* onMouseOut,
+* onMouseOver,
+
+### Shapes
+
+The following shape components are available to represent different graphical elements and user interface controls. All
+shape components can be nested.
+
+All shape components have the following attributes:
+
+Properties | Description | Default value
+--- | --- | ---
+`x` | X-coordinate | `0`
+`y` | Y-coordinate | `0`
+`backgroundColor` | Background color  expressed as a CSS color string | &nbsp;
+`borderColor` | Border color expressed as a CSS color string
+`borderWidth` | Border width in pixels | `1`
+`opacity` | Opacity in the range of `0` to `1` | `1`
+`originX` | Origin x offset in the range of `0` to `1`. Determines the alignment in the X-axis in relation to the `x` coordinate. `0` will left aligned, `0.5` will center align, and `1` will right align the component. Also affects the x placement of the rotation axis.  | `0.5`
+`originY` | Origin y offset in the range of `0` to `1`. Determines the alignment in the X-axis in relation to the `x` coordinate. `0` will left aligned, `0.5` will center align, and `1` will right align the component. Also affects the x placement of the rotation axis.  | `0.5`
+
+### Inheritance
+
+Child components will be affected by the following attributes of their parent component:
+
+Properties affected by ancestor | &nbsp;
 --- | ---
-`onClick` | Click event handler that will be attached to the underlying Canvas element. 
-`onMouseMove` | Mouse move event handler that will be attached to the underlying Canvas element. 
-`onMouseDown` | Mouse down event handler that will be attached to the underlying Canvas element. 
-`onMouseUp` | Mouse up event handler that will be attached to the underlying Canvas element. 
-`onDoubleClick` | Double click event handler that will be attached to the underlying Canvas element. 
-`onContextMenu` | Context menu event handler that will be attached to the underlying Canvas element. 
-`onMouseOut` | Mouse out event handler that will be attached to the underlying Canvas element. 
-`onMouseOver` | Moouse over event handler that will be attached to the underlying Canvas element. 
+`x` | Child's x-coordinate will be an offset of the parent's x-coordinate
+`y` | Same as above, but for the y-coordinate
+`opacity` | Child's opacity will be multiplied by the parent's opacity
+`rotation` | Child's rotation will be increased by the parent's rotation
+
+Nesting components makes it possible to update the relative position, opacity and rotation of a group of child components, by just
+changing the corresponding property on their common ancestor.
+
+### \<Rectangle>
+```js
+import { 
+  Stage, 
+  ScaleMode, 
+  Layer, 
+  Rectangle 
+} from 'react-2d-canvas';
+
+<Stage 
+  width={600} 
+  height={400} 
+  scaleMode={ScaleMode.SCALE_TO_FIT}
+>
+  <Layer>
+    <Rectangle
+      x={100}
+      y={100}
+      backgroundColor="#666"
+    />
+  </Layer>
+</Stage>
+```
