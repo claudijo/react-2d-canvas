@@ -575,8 +575,7 @@ function Layer(_ref) {
     })));
   };
 
-  var extraForEvent = function extraForEvent(event) {
-    var point = localCoordinatesFromMouseEvent(event, scale);
+  var extraForEvent = function extraForEvent(event, point) {
     var altKey = event.altKey,
         button = event.button,
         buttons = event.buttons,
@@ -613,7 +612,7 @@ function Layer(_ref) {
 
     var point = localCoordinatesFromMouseEvent(event, scale);
     var target = getEventTargetAt(point);
-    var extra = extraForEvent(event);
+    var extra = extraForEvent(event, point);
 
     if (target) {
       dispatchEvent(target, event.type, extra);
@@ -1423,6 +1422,21 @@ var CanvasCircle = /*#__PURE__*/function (_AbstractShape) {
       };
     }
   }, {
+    key: "drawHitArea",
+    value: function drawHitArea(ctx, offset, color) {
+      var backgroundColor = this.backgroundColor,
+          borderColor = this.borderColor,
+          borderWidth = this.borderWidth;
+      this.pipeline.push(rotateAndScale(this));
+      this.pipeline.push(traceArc(this));
+      this.pipeline.push(fillAndStroke({
+        backgroundColor: backgroundColor ? color : undefined,
+        borderColor: borderColor ? color : undefined,
+        borderWidth: borderWidth
+      }));
+      this.drawPipeline(ctx, offset);
+    }
+  }, {
     key: "draw",
     value: function draw(ctx, offset) {
       this.pipeline.push(rotateAndScale(this));
@@ -1501,6 +1515,48 @@ function Arc(_ref) {
   return /*#__PURE__*/React.createElement("canvas-arc", props, children);
 }
 
+var fillAndStrokeText = function fillAndStrokeText(text) {
+  return function (ctx, offset) {
+    ctx.font = "".concat(text.style, " ").concat(text.weight, " ").concat(text.size, "px ").concat(text.family);
+    ctx.textBaseline = text.baseline;
+    ctx.textAlign = text.align;
+
+    var _text$cropAndMeasure = text.cropAndMeasure(),
+        textContent = _text$cropAndMeasure.textContent,
+        height = _text$cropAndMeasure.height,
+        width = _text$cropAndMeasure.width;
+
+    var x = text.x + offset.x - width * text.originX;
+    var y = text.y + offset.y - height * text.originY;
+
+    if (text.color) {
+      ctx.fillStyle = text.color;
+      ctx.fillText(textContent, x - text.borderWidth / 2, y - text.borderWidth / 2);
+    }
+
+    if (text.borderColor && text.borderWidth) {
+      ctx.strokeStyle = text.borderColor;
+      ctx.lineWidth = text.borderWidth;
+      ctx.strokeText(textContent, x - text.borderWidth / 2, y - text.borderWidth / 2);
+    }
+  };
+};
+var traceTextBox = function traceTextBox(text) {
+  return function (ctx, offset) {
+    var _text$getBoundingBox = text.getBoundingBox(offset),
+        left = _text$getBoundingBox.left,
+        top = _text$getBoundingBox.top;
+
+    var _text$cropAndMeasure2 = text.cropAndMeasure(),
+        height = _text$cropAndMeasure2.height,
+        width = _text$cropAndMeasure2.width;
+
+    ctx.beginPath();
+    ctx.rect(left - text.borderWidth, top - text.borderWidth, width + text.borderWidth, height + text.borderWidth);
+    return true;
+  };
+};
+
 function memoize(fn, cache) {
   return function () {
     for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
@@ -1538,38 +1594,6 @@ var cropEnd = function cropEnd(text) {
 
   var cropped = main.slice(0, -1);
   return cropped + ellipses;
-};
-
-var fillAndStrokeText = function fillAndStrokeText(text) {
-  return function (ctx, offset) {
-    var textMetrics = measureText(text.style, text.weight, text.size, text.family, text.baseline, text.align, text.textContent);
-    var width = Math.abs(textMetrics.actualBoundingBoxLeft) + Math.abs(textMetrics.actualBoundingBoxRight);
-    var height = textMetrics.actualBoundingBoxAscent + textMetrics.actualBoundingBoxDescent;
-    var textContent = text.textContent;
-
-    while (textContent !== '' && width > text.maxWidth) {
-      textContent = cropEnd(textContent);
-      textMetrics = measureText(text.style, text.weight, text.size, text.family, text.baseline, text.align, textContent);
-      width = Math.abs(textMetrics.actualBoundingBoxLeft) + Math.abs(textMetrics.actualBoundingBoxRight);
-    }
-
-    ctx.font = "".concat(text.style, " ").concat(text.weight, " ").concat(text.size, "px ").concat(text.family);
-    ctx.textBaseline = text.baseline;
-    ctx.textAlign = text.align;
-    var x = text.x + offset.x - width * text.originX;
-    var y = text.y + offset.y - height * text.originY;
-
-    if (text.color) {
-      ctx.fillStyle = text.color;
-      ctx.fillText(textContent, x - text.borderWidth / 2, y - text.borderWidth / 2);
-    }
-
-    if (text.borderColor && text.borderWidth) {
-      ctx.strokeStyle = text.borderColor;
-      ctx.lineWidth = text.borderWidth;
-      ctx.strokeText(textContent, x - text.borderWidth / 2, y - text.borderWidth / 2);
-    }
-  };
 };
 
 var _excluded$1 = ["children"];
@@ -1647,17 +1671,52 @@ var CanvasLabel = /*#__PURE__*/function (_AbstractShape) {
     },
     set: function set(value) {
       this.setAttribute('maxWidth', value);
-    } // getBoundingBox(offset) {
-    //   const textMetrics = measureText(this.fontVariant, this.fontSize, this.fontFamily, this.baseline, this.align, this.textContent);
-    //
-    //   const left = this.x + offset.x - textMetrics.actualBoundingBoxLeft;
-    //   const right = this.x + offset.x + textMetrics.actualBoundingBoxRight;
-    //   const top = this.y + offset.y - textMetrics.actualBoundingBoxAscent;
-    //   const bottom = this.y + offset.y + textMetrics.actualBoundingBoxDescent;
-    //
-    //   return { left, right, top, bottom };
-    // }
+    }
+  }, {
+    key: "width",
+    get: function get() {
+      return 125;
+    }
+  }, {
+    key: "height",
+    get: function get() {
+      return 40;
+    }
+  }, {
+    key: "cropAndMeasure",
+    value: function cropAndMeasure() {
+      var textMetrics = measureText(this.style, this.weight, this.size, this.family, this.baseline, this.align, this.textContent);
+      var width = Math.abs(textMetrics.actualBoundingBoxLeft) + Math.abs(textMetrics.actualBoundingBoxRight);
+      var height = textMetrics.actualBoundingBoxAscent + textMetrics.actualBoundingBoxDescent;
+      var textContent = this.textContent;
 
+      while (textContent !== '' && width > this.maxWidth) {
+        textContent = cropEnd(textContent);
+        textMetrics = textMetrics = measureText(this.style, this.weight, this.size, this.family, this.baseline, this.align, this.textContent);
+        width = Math.abs(textMetrics.actualBoundingBoxLeft) + Math.abs(textMetrics.actualBoundingBoxRight);
+      }
+
+      return {
+        textContent: textContent,
+        height: height,
+        width: width
+      };
+    }
+  }, {
+    key: "getBoundingBox",
+    value: function getBoundingBox(offset) {
+      var textMetrics = measureText(this.style, this.weight, this.size, this.family, this.baseline, this.align, this.textContent);
+      var left = this.x + offset.x - textMetrics.actualBoundingBoxLeft;
+      var right = this.x + offset.x + textMetrics.actualBoundingBoxRight;
+      var top = this.y + offset.y - textMetrics.actualBoundingBoxAscent;
+      var bottom = this.y + offset.y + textMetrics.actualBoundingBoxDescent;
+      return {
+        left: left,
+        right: right,
+        top: top,
+        bottom: bottom
+      };
+    }
   }, {
     key: "getTranslationCenter",
     value: function getTranslationCenter(offset) {
@@ -1673,6 +1732,10 @@ var CanvasLabel = /*#__PURE__*/function (_AbstractShape) {
     value: function draw(ctx, offset) {
       this.pipeline.push(rotateAndScale(this));
       this.pipeline.push(shade(this));
+      this.pipeline.push(traceTextBox(this));
+      this.pipeline.push(fillAndStroke({
+        backgroundColor: 'red'
+      }));
       this.pipeline.push(fillAndStrokeText(this));
       this.drawPipeline(ctx, offset);
     }
