@@ -81,8 +81,8 @@ function App() {
 ## API
 All components exported separately from the main package.
 
-### Stage
-The `<Stage>` component is the main container component that can has one or several `<Layer>` child components. It handles the dimensions and scaling of the child `<Layer>` components.
+### \<Stage>
+The Stage component is the main container component that can has one or several `<Layer>` child components. It handles the dimensions and scaling of the child `<Layer>` components.
 
 Property | Description
 --- | ---
