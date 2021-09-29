@@ -78,3 +78,31 @@ function App() {
   );
 }
 ```
+## API
+All components exported separately from the main package.
+
+### Stage
+The `<Stage>` component is the main container component that can has one or several `<Layer>` child components. It handles the dimensions and scaling of the child `<Layer>` components.
+
+Property | Description
+--- | ---
+`scaleMode` | Controlling how the child `<Layer>` components scale. Available options are `ScaleMode.SCALE_TO_FIT` or `ScaleMode.SCALE_TO_COVER`
+`width` | Setting the width of the child `<Layer>` components.
+`height` | Setting the height of the child `<Layer>` components.
+`backgroundColor` | Setting the background color for the `<Stage>` component. Accepts a CSS color value.
+
+### Layer
+Each `<Layer>` component holds an HTML Canvas element. Using multiple sibling `<Layer>` components can be a way of optimizing canvas redrawing when animating content, see for instance [Use multiple layered canvases for complex scenes](https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API/Tutorial/Optimizing_canvas#use_multiple_layered_canvases_for_complex_scenes).
+
+The `<Layer>` compoents accept a number of even handler properties that are attached to the underlying canvas element. Typically, you would not attach the event handlers to the `<Layer>` element, and instead attach them to   
+
+Property | Description
+--- | ---
+`onClick` | Click event handler that will be attached to the underlying Canvas element. 
+`onMouseMove` | Mouse move event handler that will be attached to the underlying Canvas element. 
+`onMouseDown` | Mouse down event handler that will be attached to the underlying Canvas element. 
+`onMouseUp` | Mouse up event handler that will be attached to the underlying Canvas element. 
+`onDoubleClick` | Double click event handler that will be attached to the underlying Canvas element. 
+`onContextMenu` | Context menu event handler that will be attached to the underlying Canvas element. 
+`onMouseOut` | Mouse out event handler that will be attached to the underlying Canvas element. 
+`onMouseOver` | Moouse over event handler that will be attached to the underlying Canvas element. 
