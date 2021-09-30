@@ -5,19 +5,19 @@ React 2D Canvas was created with simple 2D canvas games in mind, with focus on r
 
 ## Table of Content
 * [Example Usage](#example-usage)
-* [Browser Support](link)
-* [API](link)
-    * [\<Stage>](link)
-    * [\<Layer>](link)
-    * [Shapes Components](link)
-        * [Event Handlers](link)
-        * [Nesting and Inheritance](link)
-    * [\<Rectangle>](link)
-    * [\<RoundedRectangle>](link)
-    * [\<Circle>](link)
-    * [\<Arc>](link)
-    * [\<Label>](link)
-    * [\<Image>](link)
+* [Browser Support](#browser-support)
+* [API](#api)
+    * [\<Stage>](#stage)
+    * [\<Layer>](#layer)
+    * [Shapes Components](#shapes-components)
+        * [Event Handlers](#event-handlers)
+        * [Nesting and Inheritance](#nesting-and-inheritance)
+    * [\<Rectangle>](#rectangle)
+    * [\<RoundedRectangle>](#roundedrectangle)
+    * [\<Circle>](#circle)
+    * [\<Arc>](#arc)
+    * [\<Label>](#label)
+    * [\<Image>](#image)
     
 ## Example Usage
 
