@@ -126,7 +126,7 @@ import {
 ### \<Stage>
 
 The `<Stage>` component is the outermost container and should have one or several `<Layer>` child components.
-The `<Stage>` component handles the dimensions and scaling of the child `<Layer>` components.
+The `<Stage>` component handles the dimensions and scaling.
 
 ```jsx
 import { Stage, ScaleMode } from 'react-2d-canvas';
@@ -163,14 +163,13 @@ Properties / Attributes | Description | Default value
 </Stage>
 ```
 
-Each `<Layer>` component holds an HTML Canvas element. Using multiple sibling `<Layer>` components is a good way of
+Each `<Layer>` component holds an HTML `<canvas>` element. Using multiple sibling `<Layer>` components is a good way of
 optimizing canvas redrawing when animating content. See for
 instance [Use multiple layered canvases for complex scenes](https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API/Tutorial/Optimizing_canvas#use_multiple_layered_canvases_for_complex_scenes)
 for a detailed explanation of this optimization strategy.
 
-The follwoing event handlers passed to the `<Layer>` component will be forwarded to the underlying HTML `<canvas>`
-element. Note that event handlers are typically not passed to the `<Layer>` component. Instead, attached directly on
-the different child components, such as `<Rectangle>`, `<Circle>` etc.
+The following event handlers passed to the `<Layer>` component will be forwarded to the underlying HTML `<canvas>`
+element.
 
 * `onClick`
 * `onMouseMove`
@@ -365,7 +364,7 @@ Attributes | Description | Default value
 ```
 The `<Label>` component accepts all common attributes (except `originX` and `originY`), and the following additional attributes:
 
-(Use the `align` and `baseline` attributes to change the origin of the component.)
+(Use the `align` and `baseline` attributes to change the origin of a `<Label>`.)
 
 Attributes | Description | Default value
 --- | --- | ---
