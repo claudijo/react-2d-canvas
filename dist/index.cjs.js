@@ -1373,14 +1373,14 @@ function Image$1(_ref) {
 
 var traceArc = function traceArc(arc) {
   return function (ctx, offset) {
-    var _arc$startAngle, _arc$endAngle, _arc$anticlockwise;
+    var _arc$startAngle, _arc$endAngle, _arc$counterclockwise;
 
     var _arc$getBoundingBox = arc.getBoundingBox(offset),
         left = _arc$getBoundingBox.left,
         top = _arc$getBoundingBox.top;
 
     ctx.beginPath();
-    ctx.arc(left + arc.radius, top + arc.radius, arc.radius - arc.borderWidth / 2, ((_arc$startAngle = arc.startAngle) !== null && _arc$startAngle !== void 0 ? _arc$startAngle : 0) - Math.PI / 2, ((_arc$endAngle = arc.endAngle) !== null && _arc$endAngle !== void 0 ? _arc$endAngle : Math.PI * 2) - Math.PI / 2, (_arc$anticlockwise = arc.anticlockwise) !== null && _arc$anticlockwise !== void 0 ? _arc$anticlockwise : false);
+    ctx.arc(left + arc.radius, top + arc.radius, arc.radius - arc.borderWidth / 2, ((_arc$startAngle = arc.startAngle) !== null && _arc$startAngle !== void 0 ? _arc$startAngle : 0) - Math.PI / 2, ((_arc$endAngle = arc.endAngle) !== null && _arc$endAngle !== void 0 ? _arc$endAngle : Math.PI * 2) - Math.PI / 2, (_arc$counterclockwise = arc.counterclockwise) !== null && _arc$counterclockwise !== void 0 ? _arc$counterclockwise : false);
     return true;
   };
 };
@@ -1503,17 +1503,17 @@ var CanvasArc = /*#__PURE__*/function (_CanvasCircle) {
       this.setAttribute('endAngle', value);
     }
   }, {
-    key: "anticlockwise",
+    key: "counterclockwise",
     get: function get() {
-      return this.getBooleanAttribute('anticlockwise');
+      return this.getBooleanAttribute('counterclockwise');
     },
     set: function set(value) {
-      this.setBooleanAttribute('anticlockwise', value);
+      this.setBooleanAttribute('counterclockwise', value);
     }
   }], [{
     key: "observedAttributes",
     get: function get() {
-      return [].concat(_toConsumableArray(AbstractShape.observedAttributes), ['radius', 'startangle', 'endangle', 'anticlockwise']);
+      return [].concat(_toConsumableArray(AbstractShape.observedAttributes), ['radius', 'startangle', 'endangle', 'counterclockwise']);
     }
   }]);
 
@@ -1681,14 +1681,6 @@ var CanvasLabel = /*#__PURE__*/function (_AbstractShape) {
       this.setAttribute('maxWidth', value);
     }
   }, {
-    key: "backgroundColor",
-    get: function get() {
-      return this.getAttribute('backgroundColor');
-    },
-    set: function set(value) {
-      this.setAttribute('backgroundColor', value);
-    }
-  }, {
     key: "getTextMetrics",
     value: function getTextMetrics(text) {
       return measureText(this.fontStyle, this.fontWeight, this.fontSize, this.fontFamily, this.baseline, this.align, text);
@@ -1775,7 +1767,7 @@ var CanvasLabel = /*#__PURE__*/function (_AbstractShape) {
   }], [{
     key: "observedAttributes",
     get: function get() {
-      return [].concat(_toConsumableArray(AbstractShape.observedAttributes), ['color', 'fontsize', 'fontfamily', 'fontstyle', 'fontweight', 'baseline', 'align', 'maxwidth', 'backgroundcolor']);
+      return [].concat(_toConsumableArray(AbstractShape.observedAttributes), ['color', 'fontsize', 'fontfamily', 'fontstyle', 'fontweight', 'baseline', 'align', 'maxwidth']);
     }
   }]);
 
