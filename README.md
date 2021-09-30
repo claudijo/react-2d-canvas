@@ -3,24 +3,23 @@ Draw text, images, and shapes on an HTML Canvas element using a declarative JSX 
 
 React 2D Canvas was created with simple 2D canvas games in mind, with focus on resource efficiency and the ease of development that React offers.
 
-## Browser support
-
-React 2D Canvas is supported by all modern web browsers. The support is mainly limited by the use of [Autonomous custom elements](https://caniuse.com/custom-elementsv1).
-
-The following browser versions are supported
-* Edge >79
-* Firefox >63
-* Chrome >54
-* Safari >10.1
-* Opera >41
-* Safari iOS >10.3
-* Android browser >94
-* Opera Mobile >64
-* Chrome for Android >94
-* Firefox for Android >92
-* UC browser for Android >12.12
-
-## Example
+## Table of Content
+* [Example Usage](link)
+* [Browser Support](link)
+* [API](link)
+    * [\<Stage>](link)
+    * [\<Layer>](link)
+    * [Shapes Components](link)
+        * [Event Handlers](link)
+        * [Nesting and Inheritance](link)
+    * [\<Rectangle>](link)
+    * [\<RoundedRectangle>](link)
+    * [\<Circle>](link)
+    * [\<Arc>](link)
+    * [\<Label>](link)
+    * [\<Image>](link)
+    
+## Example Usage
 
 ![Example canvas](example-canvas.png)
 
@@ -93,6 +92,23 @@ function App() {
 }
 ```
 
+## Browser Support
+
+React 2D Canvas is supported by all modern web browsers. The support is mainly limited by the use of [Autonomous custom elements](https://caniuse.com/custom-elementsv1).
+
+The following browser versions are supported
+* Edge >79
+* Firefox >63
+* Chrome >54
+* Safari >10.1
+* Opera >41
+* Safari iOS >10.3
+* Android browser >94
+* Opera Mobile >64
+* Chrome for Android >94
+* Firefox for Android >92
+* UC browser for Android >12.12
+
 ## API
 
 All components and the `ScaleMode` name space are exported individually from the main package.
@@ -153,7 +169,7 @@ instance [Use multiple layered canvases for complex scenes](https://developer.mo
 for a detailed explanation of this optimization strategy.
 
 The follwoing event handlers passed to the `<Layer>` component will be forwarded to the underlying HTML `<canvas>`
-element. Note that event handlers are typically not passed to the `<Layer>` component. Instead, attach them directly on
+element. Note that event handlers are typically not passed to the `<Layer>` component. Instead, attached directly on
 the different child components, such as `<Rectangle>`, `<Circle>` etc.
 
 * `onClick`
@@ -165,7 +181,7 @@ the different child components, such as `<Rectangle>`, `<Circle>` etc.
 * `onMouseOut`
 * `onMouseOver`
 
-### Shapes
+### Shapes Components
 
 Shape components, such as `<Rectangle>`, `<Circle>`, and `<Label>` are available for representing different graphical elements and user interface controls.
 
@@ -190,6 +206,7 @@ Common Attributes | Description | Default value
 `shadowOffsetY` | Distance that shadows will be offset vertically. | `0`
 `borderDash` | String of comma separated numbers that define the border dash pattern. | &nbsp; 
 
+#### Event Handlers
 All shapes accept the following mouse event handlers:
 * `onClick`
 * `onMouseMove`
@@ -200,7 +217,7 @@ All shapes accept the following mouse event handlers:
 * `onMouseOut`
 * `onMouseOver`
 
-### Nesting and Inheritance
+#### Nesting and Inheritance
 
 Shape components can well be nested. Child components will be affected by the following attributes of their parent component:
 
@@ -348,7 +365,7 @@ Attributes | Description | Default value
 ```
 The `<Label>` component accepts all common attributes (except `originX` and `originY`), and the following additional attributes:
 
-Use the `align` and `baseline` attributes to change the origin of the component.
+(Use the `align` and `baseline` attributes to change the origin of the component.)
 
 Attributes | Description | Default value
 --- | --- | ---
@@ -384,3 +401,6 @@ The `<Image>` component accepts all common attributes, and the following additio
 Attributes | Description | Default value
 --- | --- | ---
 `src` | Path to image. | &nbsp;
+
+## License
+MIT
