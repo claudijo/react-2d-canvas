@@ -111,15 +111,15 @@ Properties | &nbsp;
 ### \<Layer>
 
 ```js
-import { 
-  Stage, 
-  ScaleMode, 
-  Layer 
+import {
+  Stage,
+  ScaleMode,
+  Layer
 } from 'react-2d-canvas';
 
-<Stage 
-  width={600} 
-  height={400} 
+<Stage
+  width={600}
+  height={400}
   scaleMode={ScaleMode.SCALE_TO_FIT}
 >
   <Layer>
@@ -154,8 +154,7 @@ the different child components, such as `<Rectangle>`, `<Circle>` etc.
 
 ### Shapes
 
-The following shape components are available to represent different graphical elements and user interface controls. All
-shape components can be nested.
+Shape components, such as `<Rectangle>`, `<Circle>`, and `<Label>` are available to represent different graphical elements and user interface controls.
 
 All shape components have the following attributes:
 
@@ -167,12 +166,21 @@ Properties | Description | Default value
 `borderColor` | Border color expressed as a CSS color string
 `borderWidth` | Border width in pixels | `1`
 `opacity` | Opacity in the range of `0` to `1` | `1`
-`originX` | Origin x offset in the range of `0` to `1`. Determines the alignment in the X-axis in relation to the `x` coordinate. `0` will left aligned, `0.5` will center align, and `1` will right align the component. Also affects the x placement of the rotation axis.  | `0.5`
-`originY` | Origin y offset in the range of `0` to `1`. Determines the alignment in the X-axis in relation to the `x` coordinate. `0` will left aligned, `0.5` will center align, and `1` will right align the component. Also affects the x placement of the rotation axis.  | `0.5`
+`originX` | Origin on the x-axis in relation to the width of the shape, in the range of `0` to `1`.<br /><br />A value of `0` will left align the shape, `0.5` will center align, and `1` will right align the shape. Also affects the rotation origin.  | `0.5`
+`originY` | Same as `originX`, but related to the y-axis.  | `0.5`
+`rotation` | Rotation in radians. The rotation origin is controlled by the values of `orignX` and `originY` | `0`
+`scaleX` | Scaling factor in horizontal direction.  | `1`
+`scaleY` | Scaling factor in the vertical direction. | `1`
+`shadowColor` | Shadow color expressed as a CSS color string. | &nbsp;
+`shadowBlur` | Level of shadow blur. | `0`
+`shadowOffsetX` | Distance that shadows will be offset horizontally. | `0`
+`shadowOffsetY` | Distance that shadows will be offset vertically. | `0`
+`borderDash` | String of comma separated numbers that define the border dash pattern. | &nbsp; 
 
-### Inheritance
 
-Child components will be affected by the following attributes of their parent component:
+### Nesting and Inheritance
+
+Shape components can be nested. Child components will be affected by the following attributes of their parent component:
 
 Properties affected by ancestor | &nbsp;
 --- | ---
@@ -181,21 +189,22 @@ Properties affected by ancestor | &nbsp;
 `opacity` | Child's opacity will be multiplied by the parent's opacity
 `rotation` | Child's rotation will be increased by the parent's rotation
 
-Nesting components makes it possible to update the relative position, opacity and rotation of a group of child components, by just
-changing the corresponding property on their common ancestor.
+Nesting components makes it possible to update the relative position, opacity and rotation of a group of child
+components, by just changing the corresponding property on their common ancestor.
 
 ### \<Rectangle>
+
 ```js
-import { 
-  Stage, 
-  ScaleMode, 
-  Layer, 
-  Rectangle 
+import {
+  Stage,
+  ScaleMode,
+  Layer,
+  Rectangle
 } from 'react-2d-canvas';
 
-<Stage 
-  width={600} 
-  height={400} 
+<Stage
+  width={600}
+  height={400}
   scaleMode={ScaleMode.SCALE_TO_FIT}
 >
   <Layer>
