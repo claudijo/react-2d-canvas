@@ -1,9 +1,13 @@
 # React 2D Canvas
-Draw text, images, and shapes on an HTML Canvas element using a declarative JSX syntax. The library is light weight and builds on top of custom web components from the  Web Components standard. 
 
-React 2D Canvas was created with simple 2D canvas games in mind, with focus on resource efficiency and the ease of development that React offers.
+Draw text, images, and shapes on an HTML Canvas element using a declarative JSX syntax. The library is light weight and
+builds on top of custom web components from the Web Components standard.
+
+React 2D Canvas was created with simple 2D canvas games in mind, with focus on resource efficiency and the ease of
+development that React offers.
 
 ## Table of Content
+
 * [Example Usage](#example-usage)
 * [Browser Support](#browser-support)
 * [API](#api)
@@ -18,7 +22,7 @@ React 2D Canvas was created with simple 2D canvas games in mind, with focus on r
     * [\<Arc>](#arc)
     * [\<Label>](#label)
     * [\<Image>](#image)
-    
+
 ## Example Usage
 
 ![Example canvas](example-canvas.png)
@@ -26,12 +30,12 @@ React 2D Canvas was created with simple 2D canvas games in mind, with focus on r
 *A cross with line segments at `x = 100` and `y = 100` has been added to the image above for reference.*
 
 ```js
-import { 
-  Stage, 
-  ScaleMode, 
-  Layer, 
-  Rectangle, 
-  Image, 
+import {
+  Stage,
+  ScaleMode,
+  Layer,
+  Rectangle,
+  Image,
   Circle
 } from 'react-2d-canvas';
 import logo from './images/logo192.png'
@@ -94,9 +98,11 @@ function App() {
 
 ## Browser Support
 
-React 2D Canvas is supported by all modern web browsers. The support is mainly limited by the use of [Autonomous custom elements](https://caniuse.com/custom-elementsv1).
+React 2D Canvas is supported by all modern web browsers. The support is mainly limited by the use
+of [Autonomous custom elements](https://caniuse.com/custom-elementsv1).
 
 The following browser versions are supported
+
 * Edge >79
 * Firefox >63
 * Chrome >54
@@ -114,12 +120,12 @@ The following browser versions are supported
 All components and the `ScaleMode` name space are exported individually from the main package.
 
 ```js
-import { 
-  Stage, 
-  ScaleMode, 
-  Layer, 
+import {
+  Stage,
+  ScaleMode,
+  Layer,
   Rectangle,
-  /* etc */ 
+  /* etc */
 } from 'react-2d-canvas';
 ```
 
@@ -145,7 +151,7 @@ Properties / Attributes | Description | Default value
 
 ### \<Layer>
 
-```js
+```jsx
 <Stage
   width={600}
   height={400}
@@ -182,7 +188,8 @@ element.
 
 ### Shapes Components
 
-Shape components, such as `<Rectangle>`, `<Circle>`, and `<Label>` are available for representing different graphical elements and user interface controls.
+Shape components, such as `<Rectangle>`, `<Circle>`, and `<Label>` are available for representing different graphical
+elements and user interface controls.
 
 All shape components have the following common attributes:
 
@@ -203,10 +210,12 @@ Common Attributes | Description | Default value
 `shadowBlur` | Level of shadow blur. | `0`
 `shadowOffsetX` | Distance that shadows will be offset horizontally. | `0`
 `shadowOffsetY` | Distance that shadows will be offset vertically. | `0`
-`borderDash` | String of comma separated numbers that define the border dash pattern. | &nbsp; 
+`borderDash` | String of comma separated numbers that define the border dash pattern. | &nbsp;
 
 #### Event Handlers
+
 All shapes accept the following mouse event handlers:
+
 * `onClick`
 * `onMouseMove`
 * `onMouseDown`
@@ -218,7 +227,8 @@ All shapes accept the following mouse event handlers:
 
 #### Nesting and Inheritance
 
-Shape components can well be nested. Child components will be affected by the following attributes of their parent component:
+Shape components can well be nested. Child components will be affected by the following attributes of their parent
+component:
 
 Attributes affected by parent | Description
 --- | ---
@@ -232,23 +242,16 @@ components, by just changing the corresponding property on their common ancestor
 
 ### \<Rectangle>
 
-```js
-<Stage
-  width={600}
-  height={400}
-  scaleMode={ScaleMode.SCALE_TO_FIT}
->
-  <Layer>
-    <Rectangle
-      x={100}
-      y={100}
-      width={75}
-      height={150}
-      backgroundColor="#666"
-    />
-  </Layer>
-</Stage>
+```jsx
+<Rectangle
+  x={100}
+  y={100}
+  width={75}
+  height={150}
+  backgroundColor="#666"
+/>
 ```
+
 The `<Rectangle>` component accepts all common attributes, and the following additional attributes:
 
 Attributes | Description | Default value
@@ -257,23 +260,16 @@ Attributes | Description | Default value
 `height` | Pixel height. | `0`
 
 ### \<RoundedRectangle>
-```js
-<Stage
-  width={600}
-  height={400}
-  scaleMode={ScaleMode.SCALE_TO_FIT}
->
-  <Layer>
-    <RoundedRectangle
-      x={100}
-      y={100}
-      width={75}
-      height={150}
-      radius={20}
-      backgroundColor="#666"
-    />
-  </Layer>
-</Stage>
+
+```jsx
+<RoundedRectangle
+  x={100}
+  y={100}
+  width={75}
+  height={150}
+  radius={20}
+  backgroundColor="#666"
+/>
 ```
 
 The `<RoundedRectangle>` component accepts all common attributes, and the following additional attributes:
@@ -285,22 +281,16 @@ Attributes | Description | Default value
 `radius` | Corner radius. | `0`
 
 ### \<Circle>
-```js
-<Stage
-  width={600}
-  height={400}
-  scaleMode={ScaleMode.SCALE_TO_FIT}
->
-  <Layer>
-    <Circle
-      x={100}
-      y={100}
-      radius={20}
-      backgroundColor="#666"
-    />
-  </Layer>
-</Stage>
+
+```jsx
+<Circle
+  x={100}
+  y={100}
+  radius={20}
+  backgroundColor="#666"
+/>
 ```
+
 The `<Circle>` component accepts all common attributes, and the following additional attributes:
 
 Attributes | Description | Default value
@@ -308,24 +298,18 @@ Attributes | Description | Default value
 `radius` | Radius. | `0`
 
 ### \<Arc>
-```js
-<Stage
-  width={600}
-  height={400}
-  scaleMode={ScaleMode.SCALE_TO_FIT}
->
-  <Layer>
-    <Arc
-      x={100}
-      y={100}
-      radius={20}
-      backgroundColor="#666"
-      startAngle={45 * Math.PI / 180}
-      endAngle={180 * Math.PI / 180}
-    />
-  </Layer>
-</Stage>
+
+```jsx
+<Arc
+  x={100}
+  y={100}
+  radius={20}
+  backgroundColor="#666"
+  startAngle={45 * Math.PI / 180}
+  endAngle={180 * Math.PI / 180}
+/>
 ```
+
 The `<Arc>` component accepts all common attributes, and the following additional attributes:
 
 Attributes | Description | Default value
@@ -336,33 +320,28 @@ Attributes | Description | Default value
 `counterclockwise` | Boolean value indicating direction of drawing from `startAngle` to `endAngle`. | `false`
 
 ### \<Label>
-```js
-<Stage
-  width={600}
-  height={400}
-  scaleMode={ScaleMode.SCALE_TO_FIT}
+
+```jsx
+<Label
+  x={100}
+  y={100}
+  color="red"
+  fontFamily="Helvetica"
+  fontSize={30}
+  fontStyle="italic"
+  fontWeight="bold"
+  align="center"
+  baseline="middle"
+  maxWidth={40}
+  startAngle={45 * Math.PI / 180}
+  endAngle={180 * Math.PI / 180}
 >
-  <Layer>
-    <Label
-      x={100}
-      y={100}
-      color="red"
-      fontFamily="Helvetica"
-      fontSize={30}
-      fontStyle="italic"
-      fontWeight="bold"
-      align="center"
-      baseline="middle"
-      maxWidth={40}
-      startAngle={45 * Math.PI / 180}
-      endAngle={180 * Math.PI / 180}
-    >
-      A single line of text
-    </Label>
-  </Layer>
-</Stage>
+  A single line of text
+</Label>
 ```
-The `<Label>` component accepts all common attributes (except `originX` and `originY`), and the following additional attributes:
+
+The `<Label>` component accepts all common attributes (except `originX` and `originY`), and the following additional
+attributes:
 
 (Use the `align` and `baseline` attributes to change the origin of a `<Label>`.)
 
@@ -378,23 +357,17 @@ Attributes | Description | Default value
 `maxwidth` | Pixel width at which point the text will be cropped and appended with ellipses to fit within the `maxWidth`. | `Infinity`
 
 ### \<Image>
-```js
-<Stage
-  width={600}
-  height={400}
-  scaleMode={ScaleMode.SCALE_TO_FIT}
->
-  <Layer>
-    <Image
-      x={100}
-      y={100}
-      width={48}
-      height={48}
-      src={myIcon}
-    />
-  </Layer>
-</Stage>
+
+```jsx
+<Image
+  x={100}
+  y={100}
+  width={48}
+  height={48}
+  src={myIcon}
+/>
 ```
+
 The `<Image>` component accepts all common attributes, and the following additional attributes:
 
 Attributes | Description | Default value
@@ -402,4 +375,5 @@ Attributes | Description | Default value
 `src` | Path to image. | &nbsp;
 
 ## License
+
 MIT
