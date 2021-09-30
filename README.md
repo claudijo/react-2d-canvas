@@ -154,7 +154,7 @@ the different child components, such as `<Rectangle>`, `<Circle>` etc.
 
 ### Shapes
 
-Shape components, such as `<Rectangle>`, `<Circle>`, and `<Label>` are available to represent different graphical elements and user interface controls.
+Shape components, such as `<Rectangle>`, `<Circle>`, and `<Label>` are available for representing different graphical elements and user interface controls.
 
 All shape components have the following common attributes:
 
@@ -238,10 +238,12 @@ Attributes | Description | Default value
 </Stage>
 ```
 
-The `<RoundedRectangle>` component accepts all `<Rectangle>` and common attributes, and the following additional attributes:
+The `<RoundedRectangle>` component accepts all common attributes, and the following additional attributes:
 
 Attributes | Description | Default value
 --- | --- | ---
+`width` | Pixel width | `0`
+`height` | Pixel height | `0`
 `radius` | Corner radius | `0`
 
 ### \<Circle>
@@ -261,10 +263,102 @@ Attributes | Description | Default value
   </Layer>
 </Stage>
 ```
-The `<Circle>` component accepts all common attributes.
-
-Additional attributes for the `<Circle>` component:
+The `<Circle>` component accepts all common attributes, and the following additional attributes:
 
 Attributes | Description | Default value
 --- | --- | ---
 `radius` | Radius | `0`
+
+### \<Arc>
+```js
+<Stage
+  width={600}
+  height={400}
+  scaleMode={ScaleMode.SCALE_TO_FIT}
+>
+  <Layer>
+    <Arc
+      x={100}
+      y={100}
+      radius={20}
+      backgroundColor="#666"
+      startAngle={45 * Math.PI / 180}
+      endAngle={180 * Math.PI / 180}
+    />
+  </Layer>
+</Stage>
+```
+The `<Arc>` component accepts all common attributes, and the following additional attributes:
+
+Attributes | Description | Default value
+--- | --- | ---
+`radius` | Radius | `0`
+`startAngle` | Start angle in radians measured from 12'o clock | `0`
+`endAngle` | End angle in radians measured from 12'o clock | `0`
+`counterclockwise` | Boolean value indicating direction of drawing from `startAngle` to `endAngle` | `false`
+
+### \<Label>
+```js
+<Stage
+  width={600}
+  height={400}
+  scaleMode={ScaleMode.SCALE_TO_FIT}
+>
+  <Layer>
+    <Label
+      x={100}
+      y={100}
+      color="red"
+      fontFamily="Helvetica"
+      fontSize={30}
+      fontStyle="italic"
+      fontWeight="bold"
+      align="center"
+      baseline="middle"
+      maxWidth={40}
+      startAngle={45 * Math.PI / 180}
+      endAngle={180 * Math.PI / 180}
+    >
+      A single line of text
+    </Label>
+  </Layer>
+</Stage>
+```
+The `<Label>` component accepts all common attributes (except `originX` and `originY`), and the following additional attributes:
+
+Use the `align` and `baseline` attributes to change the origin of the component.
+
+Attributes | Description | Default value
+--- | --- | ---
+`color` | Text color expressed as CSS color string. | &nbsp;
+`fontSize` | Size of the text in pixels. | `10`
+`fontFamily` | Font family of the text. | `"sans-serif"`
+`fontStyle` | Font style expressed in CSS font style string. | &nbsp;
+`fontWeight` | Font weight expressed in CSS font weight string or number | &nbsp;
+`baseline` | Baseline of the text using one of the following values `top`, `hanging`, `middle`, `alphabetic`, `ideographic`, `bottom`. | `"alphabetic"`
+`align` | Horizontal alignment of the text using one of the following values `left`, `right`, `start`, `end`, `center` | `"start"`
+`maxwidth` | Pixel width of the text at which point the text will be cropped and appended with ellipses to fit within the `maxWidth` | `Infinity`
+
+### \<Image>
+```js
+<Stage
+  width={600}
+  height={400}
+  scaleMode={ScaleMode.SCALE_TO_FIT}
+>
+  <Layer>
+    <Image
+      x={100}
+      y={100}
+      width={48}
+      height={48}
+      src={myIcon}
+    />
+  </Layer>
+</Stage>
+```
+The `<Image>` component accepts all common attributes, and the following additional attributes:
+
+Attributes | Description | Default value
+--- | --- | ---
+`src` | Path to image. | &nbsp;
