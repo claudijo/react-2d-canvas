@@ -1,6 +1,9 @@
 # React 2D Canvas
 
-Draw text and shapes on a HTML Canvas element using a declarative JSX syntax
+Draw text, images, and shapes on an HTML Canvas element using a declarative JSX syntax. The library is light weight and builds on top of custom web components from the  Web Components standard. 
+
+React 2D Canvas was created with simple and resource efficient 2D canvas games in mind.
+
 
 ## Example
 
