@@ -248,6 +248,7 @@ components, by just changing the corresponding property on their common ancestor
   y={100}
   width={75}
   height={150}
+  borderColor="#333"
   backgroundColor="#666"
 />
 ```
@@ -268,6 +269,7 @@ Attributes | Description | Default value
   width={75}
   height={150}
   radius={20}
+  borderColor="#333"
   backgroundColor="#666"
 />
 ```
@@ -287,6 +289,7 @@ Attributes | Description | Default value
   x={100}
   y={100}
   radius={20}
+  borderColor="#333"
   backgroundColor="#666"
 />
 ```
@@ -304,7 +307,7 @@ Attributes | Description | Default value
   x={100}
   y={100}
   radius={20}
-  backgroundColor="#666"
+  borderColor="#333"
   startAngle={45 * Math.PI / 180}
   endAngle={180 * Math.PI / 180}
 />
