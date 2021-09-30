@@ -1,9 +1,24 @@
 # React 2D Canvas
-
 Draw text, images, and shapes on an HTML Canvas element using a declarative JSX syntax. The library is light weight and builds on top of custom web components from the  Web Components standard. 
 
 React 2D Canvas was created with simple and resource efficient 2D canvas games in mind.
 
+## Browser support
+
+React 2D Canvas is supported by all modern web browsers. The support is mainly limited by the use of [Autonomous custom elements](https://caniuse.com/custom-elementsv1).
+
+The following browser versions are supported
+* Edge >79
+* Firefox >63
+* Chrome >54
+* Safari >10.1
+* Opera >41
+* Safari iOS >10.3
+* Android browser >94
+* Opera Mobile >64
+* Chrome for Android >94
+* Firefox for Android >92
+* UC browser for Android >12.12
 
 ## Example
 
@@ -186,7 +201,7 @@ components, by just changing the corresponding property on their common ancestor
   scaleMode={ScaleMode.SCALE_TO_FIT}
 >
   <Layer>
-    <RoundedRectangle
+    <Rectangle
       x={100}
       y={100}
       width={75}
