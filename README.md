@@ -81,7 +81,7 @@ import { Stage, ScaleMode, Layer, Rectangle /* etc */ } from 'react-2d-canvas';
 
 ### \<Stage>
 
-The `<Stage>` component is the outermost container component that should have one or several `<Layer>` child components.
+The `<Stage>` component is the outermost container and should have one or several `<Layer>` child components.
 The `<Stage>` component handles the dimensions and scaling of the child `<Layer>` components.
 
 ```jsx
