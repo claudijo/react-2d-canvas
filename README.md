@@ -92,7 +92,7 @@ import { Stage, ScaleMode } from 'react-2d-canvas';
 </Stage>
 ```
 
-Properties | &nbsp;
+Properties / Attributes | &nbsp;
 --- | ---
 `scaleMode` | Controlling how the child `<Layer>` components scale. Available options are `ScaleMode.SCALE_TO_FIT` or `ScaleMode.SCALE_TO_COVER`
 `width` | Setting the width of the child `<Layer>` components.
@@ -102,12 +102,6 @@ Properties | &nbsp;
 ### \<Layer>
 
 ```js
-import {
-  Stage,
-  ScaleMode,
-  Layer
-} from 'react-2d-canvas';
-
 <Stage
   width={600}
   height={400}
@@ -125,7 +119,7 @@ import {
 </Stage>
 ```
 
-Each `<Layer>` component holds an HTML Canvas element. Using multiple sibling `<Layer>` components can be a way of
+Each `<Layer>` component holds an HTML Canvas element. Using multiple sibling `<Layer>` components is a good way of
 optimizing canvas redrawing when animating content. See for
 instance [Use multiple layered canvases for complex scenes](https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API/Tutorial/Optimizing_canvas#use_multiple_layered_canvases_for_complex_scenes)
 for a detailed explanation of this optimization strategy.
@@ -147,9 +141,9 @@ the different child components, such as `<Rectangle>`, `<Circle>` etc.
 
 Shape components, such as `<Rectangle>`, `<Circle>`, and `<Label>` are available to represent different graphical elements and user interface controls.
 
-All shape components have the following attributes:
+All shape components have the following common attributes:
 
-Properties | Description | Default value
+Common Attributes | Description | Default value
 --- | --- | ---
 `x` | X-coordinate | `0`
 `y` | Y-coordinate | `0`
@@ -173,7 +167,7 @@ Properties | Description | Default value
 
 Shape components can be nested. Child components will be affected by the following attributes of their parent component:
 
-Properties affected by ancestor | &nbsp;
+Attributes affected by ancestor | Description
 --- | ---
 `x` | Child's x-coordinate will be an offset of the parent's x-coordinate
 `y` | Same as above, but for the y-coordinate
@@ -186,24 +180,51 @@ components, by just changing the corresponding property on their common ancestor
 ### \<Rectangle>
 
 ```js
-import {
-  Stage,
-  ScaleMode,
-  Layer,
-  Rectangle
-} from 'react-2d-canvas';
-
 <Stage
   width={600}
   height={400}
   scaleMode={ScaleMode.SCALE_TO_FIT}
 >
   <Layer>
-    <Rectangle
+    <RoundedRectangle
       x={100}
       y={100}
+      width={75}
+      height={150}
       backgroundColor="#666"
     />
   </Layer>
 </Stage>
 ```
+The `<Rectangle>` component accepts all common attributes, and the following additional attributes:
+
+Attributes | Description | Default value
+--- | --- | ---
+`width` | Pixel width | `0`
+`height` | Pixel height | `0`
+
+### \<RoundedRectangle>
+```js
+<Stage
+  width={600}
+  height={400}
+  scaleMode={ScaleMode.SCALE_TO_FIT}
+>
+  <Layer>
+    <RoundedRectangle
+      x={100}
+      y={100}
+      width={75}
+      height={150}
+      radius={20}
+      backgroundColor="#666"
+    />
+  </Layer>
+</Stage>
+```
+
+The `<RoundedRectangle>` component accepts all `<Rectangle>` and common attributes, and the following additional attributes:
+
+Attributes | Description | Default value
+--- | --- | ---
+`radius` | Corner radius | `0`
