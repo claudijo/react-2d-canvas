@@ -379,4 +379,4 @@ Attributes | Description | Default value
 
 ## License
 
-MIT
+[MIT](LICENSE.md)
