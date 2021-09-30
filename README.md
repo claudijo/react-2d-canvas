@@ -1,7 +1,7 @@
 # React 2D Canvas
 Draw text, images, and shapes on an HTML Canvas element using a declarative JSX syntax. The library is light weight and builds on top of custom web components from the  Web Components standard. 
 
-React 2D Canvas was created with simple and resource efficient 2D canvas games in mind.
+React 2D Canvas was created with simple 2D canvas games in mind, with focus on resource efficiency and the ease of development that React offers.
 
 ## Browser support
 
@@ -27,7 +27,14 @@ The following browser versions are supported
 *A cross with line segments at `x = 100` and `y = 100` has been added to the image above for reference.*
 
 ```js
-import { Stage, ScaleMode, Layer, Rectangle, Image, Circle } from 'react-2d-canvas';
+import { 
+  Stage, 
+  ScaleMode, 
+  Layer, 
+  Rectangle, 
+  Image, 
+  Circle
+} from 'react-2d-canvas';
 import logo from './images/logo192.png'
 
 function App() {
@@ -91,7 +98,13 @@ function App() {
 All components and the `ScaleMode` name space are exported individually from the main package.
 
 ```js
-import { Stage, ScaleMode, Layer, Rectangle /* etc */ } from 'react-2d-canvas';
+import { 
+  Stage, 
+  ScaleMode, 
+  Layer, 
+  Rectangle,
+  /* etc */ 
+} from 'react-2d-canvas';
 ```
 
 ### \<Stage>
@@ -107,12 +120,12 @@ import { Stage, ScaleMode } from 'react-2d-canvas';
 </Stage>
 ```
 
-Properties / Attributes | &nbsp;
---- | ---
-`scaleMode` | Controlling how the child `<Layer>` components scale. Available options are `ScaleMode.SCALE_TO_FIT` or `ScaleMode.SCALE_TO_COVER`
-`width` | Setting the width of the child `<Layer>` components.
-`height` | Setting the height of the child `<Layer>` components.
-`backgroundColor` | Setting the background color for the `<Stage>` component. Accepts a CSS color value.
+Properties / Attributes | Description | Default value
+--- | --- | ---
+`scaleMode` | Controlling how the child `<Layer>` components scale. Available options are `ScaleMode.SCALE_TO_FIT` or `ScaleMode.SCALE_TO_COVER` | &nbsp;
+`width` | Setting the width of the child `<Layer>` components. | `300`
+`height` | Setting the height of the child `<Layer>` components. | `300`
+`backgroundColor` | Setting the background color for the `<Stage>` component. Accepts a CSS color value. | &nbsp;
 
 ### \<Layer>
 
@@ -143,14 +156,14 @@ The follwoing event handlers passed to the `<Layer>` component will be forwarded
 element. Note that event handlers are typically not passed to the `<Layer>` component. Instead, attach them directly on
 the different child components, such as `<Rectangle>`, `<Circle>` etc.
 
-* onClick,
-* onMouseMove,
-* onMouseDown,
-* onMouseUp,
-* onDoubleClick,
-* onContextMenu,
-* onMouseOut,
-* onMouseOver,
+* `onClick`
+* `onMouseMove`
+* `onMouseDown`
+* `onMouseUp`
+* `onDoubleClick`
+* `onContextMenu`
+* `onMouseOut`
+* `onMouseOver`
 
 ### Shapes
 
@@ -177,12 +190,21 @@ Common Attributes | Description | Default value
 `shadowOffsetY` | Distance that shadows will be offset vertically. | `0`
 `borderDash` | String of comma separated numbers that define the border dash pattern. | &nbsp; 
 
+All shapes accept the following mouse event handlers:
+* `onClick`
+* `onMouseMove`
+* `onMouseDown`
+* `onMouseUp`
+* `onDoubleClick`
+* `onContextMenu`
+* `onMouseOut`
+* `onMouseOver`
 
 ### Nesting and Inheritance
 
-Shape components can be nested. Child components will be affected by the following attributes of their parent component:
+Shape components can well be nested. Child components will be affected by the following attributes of their parent component:
 
-Attributes affected by ancestor | Description
+Attributes affected by parent | Description
 --- | ---
 `x` | Child's x-coordinate will be an offset of the parent's x-coordinate
 `y` | Same as above, but for the y-coordinate
@@ -215,8 +237,8 @@ The `<Rectangle>` component accepts all common attributes, and the following add
 
 Attributes | Description | Default value
 --- | --- | ---
-`width` | Pixel width | `0`
-`height` | Pixel height | `0`
+`width` | Pixel width. | `0`
+`height` | Pixel height. | `0`
 
 ### \<RoundedRectangle>
 ```js
@@ -242,9 +264,9 @@ The `<RoundedRectangle>` component accepts all common attributes, and the follow
 
 Attributes | Description | Default value
 --- | --- | ---
-`width` | Pixel width | `0`
-`height` | Pixel height | `0`
-`radius` | Corner radius | `0`
+`width` | Pixel width. | `0`
+`height` | Pixel height. | `0`
+`radius` | Corner radius. | `0`
 
 ### \<Circle>
 ```js
@@ -267,7 +289,7 @@ The `<Circle>` component accepts all common attributes, and the following additi
 
 Attributes | Description | Default value
 --- | --- | ---
-`radius` | Radius | `0`
+`radius` | Radius. | `0`
 
 ### \<Arc>
 ```js
@@ -292,10 +314,10 @@ The `<Arc>` component accepts all common attributes, and the following additiona
 
 Attributes | Description | Default value
 --- | --- | ---
-`radius` | Radius | `0`
-`startAngle` | Start angle in radians measured from 12'o clock | `0`
-`endAngle` | End angle in radians measured from 12'o clock | `0`
-`counterclockwise` | Boolean value indicating direction of drawing from `startAngle` to `endAngle` | `false`
+`radius` | Radius. | `0`
+`startAngle` | Start angle in radians measured from 12'o clock. | `0`
+`endAngle` | End angle in radians measured from 12'o clock. | `0`
+`counterclockwise` | Boolean value indicating direction of drawing from `startAngle` to `endAngle`. | `false`
 
 ### \<Label>
 ```js
@@ -334,10 +356,10 @@ Attributes | Description | Default value
 `fontSize` | Size of the text in pixels. | `10`
 `fontFamily` | Font family of the text. | `"sans-serif"`
 `fontStyle` | Font style expressed in CSS font style string. | &nbsp;
-`fontWeight` | Font weight expressed in CSS font weight string or number | &nbsp;
+`fontWeight` | Font weight expressed in CSS font weight string or number. | &nbsp;
 `baseline` | Baseline of the text using one of the following values `top`, `hanging`, `middle`, `alphabetic`, `ideographic`, `bottom`. | `"alphabetic"`
-`align` | Horizontal alignment of the text using one of the following values `left`, `right`, `start`, `end`, `center` | `"start"`
-`maxwidth` | Pixel width of the text at which point the text will be cropped and appended with ellipses to fit within the `maxWidth` | `Infinity`
+`align` | Horizontal alignment of the text using one of the following values `left`, `right`, `start`, `end`, `center`. | `"start"`
+`maxwidth` | Pixel width at which point the text will be cropped and appended with ellipses to fit within the `maxWidth`. | `Infinity`
 
 ### \<Image>
 ```js
