@@ -353,10 +353,10 @@ Use the `align` and `baseline` attributes to change the origin of the component.
 Attributes | Description | Default value
 --- | --- | ---
 `color` | Text color expressed as CSS color string. | &nbsp;
-`fontSize` | Size of the text in pixels. | `10`
-`fontFamily` | Font family of the text. | `"sans-serif"`
-`fontStyle` | Font style expressed in CSS font style string. | &nbsp;
-`fontWeight` | Font weight expressed in CSS font weight string or number. | &nbsp;
+`fontSize` | Pixel size of the text. | `10`
+`fontFamily` | Font family name of the text. | `"sans-serif"`
+`fontStyle` | Font style expressed using one of the following values `normal`, `italic`, `oblique`. | &nbsp;
+`fontWeight` | Font weight expressed in CSS font weight string or number. | `normal`
 `baseline` | Baseline of the text using one of the following values `top`, `hanging`, `middle`, `alphabetic`, `ideographic`, `bottom`. | `"alphabetic"`
 `align` | Horizontal alignment of the text using one of the following values `left`, `right`, `start`, `end`, `center`. | `"start"`
 `maxwidth` | Pixel width at which point the text will be cropped and appended with ellipses to fit within the `maxWidth`. | `Infinity`

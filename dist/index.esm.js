@@ -1627,7 +1627,7 @@ var CanvasLabel = /*#__PURE__*/function (_AbstractShape) {
   }, {
     key: "fontStyle",
     get: function get() {
-      return this.getTextualAttribute('fontStyle', '');
+      return this.getTextualAttribute('fontStyle', 'normal');
     },
     set: function set(value) {
       this.setAttribute('fontStyle', value);
@@ -1635,7 +1635,7 @@ var CanvasLabel = /*#__PURE__*/function (_AbstractShape) {
   }, {
     key: "fontWeight",
     get: function get() {
-      return this.getTextualAttribute('fontWeight', '');
+      return this.getTextualAttribute('fontWeight', 'normal');
     },
     set: function set(value) {
       this.setAttribute('fontWeight', value);
