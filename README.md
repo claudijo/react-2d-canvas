@@ -346,7 +346,7 @@ Attributes | Description | Default value
 The `<Label>` component accepts all common attributes (except `originX` and `originY`), and the following additional
 attributes:
 
-(Use the `align` and `baseline` attributes to change the origin of a `<Label>`.)
+Use the `align` and `baseline` attributes to change the origin of a `<Label>`.
 
 Attributes | Description | Default value
 --- | --- | ---
