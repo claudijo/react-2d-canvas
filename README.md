@@ -2,18 +2,6 @@
 
 Draw text and shapes on a HTML Canvas element using a declarative JSX syntax
 
-## Property Inheritance
-
-Child elements will be affected by the following properties of their parent elements:
-
-`x` – Child's x-coordinate will be an offset of the parent's x-coordinate
-
-`y` – Same as above, but for the y-coordinate
-
-`opacity` – Child's opacity will be multiplied by the parent's opacity
-
-`rotation` – Child's rotation will be increased by the parent's rotation
-
 ## Example
 
 ![Example canvas](example-canvas.png)
