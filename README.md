@@ -243,3 +243,28 @@ The `<RoundedRectangle>` component accepts all `<Rectangle>` and common attribut
 Attributes | Description | Default value
 --- | --- | ---
 `radius` | Corner radius | `0`
+
+### \<Circle>
+```js
+<Stage
+  width={600}
+  height={400}
+  scaleMode={ScaleMode.SCALE_TO_FIT}
+>
+  <Layer>
+    <Circle
+      x={100}
+      y={100}
+      radius={20}
+      backgroundColor="#666"
+    />
+  </Layer>
+</Stage>
+```
+The `<Circle>` component accepts all common attributes.
+
+Additional attributes for the `<Circle>` component:
+
+Attributes | Description | Default value
+--- | --- | ---
+`radius` | Radius | `0`
