@@ -22,6 +22,7 @@ development that React offers.
     * [\<Arc>](#arc)
     * [\<Label>](#label)
     * [\<Image>](#image)
+* [License](#license)
 
 ## Example Usage
 
