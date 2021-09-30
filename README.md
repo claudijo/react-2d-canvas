@@ -4,7 +4,7 @@ Draw text, images, and shapes on an HTML Canvas element using a declarative JSX 
 React 2D Canvas was created with simple 2D canvas games in mind, with focus on resource efficiency and the ease of development that React offers.
 
 ## Table of Content
-* [Example Usage](link)
+* [Example Usage](#example-usage)
 * [Browser Support](link)
 * [API](link)
     * [\<Stage>](link)
