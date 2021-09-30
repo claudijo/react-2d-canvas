@@ -533,20 +533,6 @@ function Layer(_ref) {
       hitCtx.clearRect(0, 0, hitCanvas.width, hitCanvas.height);
       colorIncrementer.reset();
       drawChildren(ctx, canvasElement.current.children);
-      ctx.beginPath(); // Start a new path
-
-      ctx.moveTo(0, 100); // Move the pen to (30, 50)
-
-      ctx.lineTo(200, 100); // Draw a line to (150, 100)
-
-      ctx.stroke();
-      ctx.beginPath(); // Start a new path
-
-      ctx.moveTo(100, 0); // Move the pen to (30, 50)
-
-      ctx.lineTo(100, 200); // Draw a line to (150, 100)
-
-      ctx.stroke();
     });
     requestAnimationFrame(onUpdate);
     canvas.addEventListener('attributeChange', onUpdate);
@@ -979,8 +965,8 @@ var rotateAndScale = function rotateAndScale(shape) {
     if (scaleX !== 1 || scaleY !== 1 || rotation !== 0) {
       var translate = shape.getTranslationCenter(offset);
       ctx.translate(translate.x, translate.y);
-      ctx.scale(scaleX, scaleY);
       ctx.rotate(rotation);
+      ctx.scale(scaleX, scaleY);
       ctx.translate(-translate.x, -translate.y);
     }
 
