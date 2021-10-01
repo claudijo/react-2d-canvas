@@ -225,6 +225,8 @@ element.
 Shape components, such as `<Rectangle>`, `<Circle>`, and `<Label>` are available for representing different graphical
 elements and user interface controls.
 
+All shape components accept a `ref` property which will be forwarded to the underlying element. Using a `ref` enables the possibilities to read properties / attributes on the element.
+
 All shape components have the following common attributes:
 
 Common Attributes | Description | Default value
@@ -287,7 +289,7 @@ components, by just changing the corresponding property on their common ancestor
 />
 ```
 
-The `<Rectangle>` component accepts all common attributes, and the following additional attributes:
+The `<Rectangle>` component accepts all common attributes, and the additional attributes listed below.
 
 Attributes | Description | Default value
 --- | --- | ---
@@ -308,7 +310,7 @@ Attributes | Description | Default value
 />
 ```
 
-The `<RoundedRectangle>` component accepts all common attributes, and the following additional attributes:
+The `<RoundedRectangle>` component accepts all common attributes, and the additional attributes listed below.
 
 Attributes | Description | Default value
 --- | --- | ---
@@ -328,7 +330,7 @@ Attributes | Description | Default value
 />
 ```
 
-The `<Circle>` component accepts all common attributes, and the following additional attributes:
+The `<Circle>` component accepts all common attributes, and the additional attributes listed below.
 
 Attributes | Description | Default value
 --- | --- | ---
@@ -347,7 +349,7 @@ Attributes | Description | Default value
 />
 ```
 
-The `<Arc>` component accepts all common attributes, and the following additional attributes:
+The `<Arc>` component accepts all common attributes, and the additional attributes listed below.
 
 Attributes | Description | Default value
 --- | --- | ---
@@ -377,10 +379,12 @@ Attributes | Description | Default value
 </Label>
 ```
 
-The `<Label>` component accepts all common attributes (except `originX` and `originY`), and the following additional
-attributes:
+The `<Label>` component accepts all common attributes (except `originX` and `originY`), and the additional
+attributes listed below.
 
 Use the `align` and `baseline` attributes to change the origin of a `<Label>`.
+
+Note that the `<Label>` component does *not* accept `width` nor `height` attributes since the dimensions are derived from the text content, but there are read-only `width` and `height` element properties that can be accessed using a `ref` to the underlying element. 
 
 Attributes | Description | Default value
 --- | --- | ---
@@ -405,7 +409,7 @@ Attributes | Description | Default value
 />
 ```
 
-The `<Image>` component accepts all common attributes, and the following additional attributes:
+The `<Image>` component accepts all common attributes, and the additional attributes listed below.
 
 Attributes | Description | Default value
 --- | --- | ---

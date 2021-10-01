@@ -83,6 +83,24 @@ function _defineProperty(obj, key, value) {
   return obj;
 }
 
+function _extends() {
+  _extends = Object.assign || function (target) {
+    for (var i = 1; i < arguments.length; i++) {
+      var source = arguments[i];
+
+      for (var key in source) {
+        if (Object.prototype.hasOwnProperty.call(source, key)) {
+          target[key] = source[key];
+        }
+      }
+    }
+
+    return target;
+  };
+
+  return _extends.apply(this, arguments);
+}
+
 function _inherits(subClass, superClass) {
   if (typeof superClass !== "function" && superClass !== null) {
     throw new TypeError("Super expression must either be null or a function");
@@ -1121,12 +1139,14 @@ var CanvasRectangle = /*#__PURE__*/function (_AbstractShape) {
   return CanvasRectangle;
 }(AbstractShape);
 registerCustomElement('canvas-rectangle', CanvasRectangle);
-function Rectangle(_ref) {
+var rectangle = /*#__PURE__*/React__default["default"].forwardRef(function (_ref, ref) {
   var children = _ref.children,
       props = _objectWithoutProperties(_ref, _excluded$5);
 
-  return /*#__PURE__*/React__default["default"].createElement("canvas-rectangle", props, children);
-}
+  return /*#__PURE__*/React__default["default"].createElement("canvas-rectangle", _extends({}, props, {
+    ref: ref
+  }), children);
+});
 
 // From https://medium.com/dsinjs/implementing-lru-cache-in-javascript-94ba6755cda9
 var Node = function Node(key, value) {
@@ -1350,12 +1370,14 @@ var CanvasImage = /*#__PURE__*/function (_CanvasRectangle) {
   return CanvasImage;
 }(CanvasRectangle);
 registerCustomElement('canvas-image', CanvasImage);
-function Image$1(_ref) {
+var image = /*#__PURE__*/React__default["default"].forwardRef(function (_ref, ref) {
   var children = _ref.children,
       props = _objectWithoutProperties(_ref, _excluded$4);
 
-  return /*#__PURE__*/React__default["default"].createElement("canvas-image", props, children);
-}
+  return /*#__PURE__*/React__default["default"].createElement("canvas-image", _extends({}, props, {
+    ref: ref
+  }), children);
+});
 
 var traceArc = function traceArc(arc) {
   return function (ctx, offset) {
@@ -1453,12 +1475,14 @@ var CanvasCircle = /*#__PURE__*/function (_AbstractShape) {
   return CanvasCircle;
 }(AbstractShape);
 registerCustomElement('canvas-circle', CanvasCircle);
-function Circle(_ref) {
+var circle = /*#__PURE__*/React__default["default"].forwardRef(function (_ref, ref) {
   var children = _ref.children,
       props = _objectWithoutProperties(_ref, _excluded$3);
 
-  return /*#__PURE__*/React__default["default"].createElement("canvas-circle", props, children);
-}
+  return /*#__PURE__*/React__default["default"].createElement("canvas-circle", _extends({}, props, {
+    ref: ref
+  }), children);
+});
 
 var _excluded$2 = ["children"];
 var CanvasArc = /*#__PURE__*/function (_CanvasCircle) {
@@ -1506,12 +1530,14 @@ var CanvasArc = /*#__PURE__*/function (_CanvasCircle) {
   return CanvasArc;
 }(CanvasCircle);
 registerCustomElement('canvas-arc', CanvasArc);
-function Arc(_ref) {
+var arc = /*#__PURE__*/React__default["default"].forwardRef(function (_ref, ref) {
   var children = _ref.children,
       props = _objectWithoutProperties(_ref, _excluded$2);
 
-  return /*#__PURE__*/React__default["default"].createElement("canvas-arc", props, children);
-}
+  return /*#__PURE__*/React__default["default"].createElement("canvas-arc", _extends({}, props, {
+    ref: ref
+  }), children);
+});
 
 var fillAndStrokeText = function fillAndStrokeText(text) {
   return function (ctx, offset) {
@@ -1667,6 +1693,22 @@ var CanvasLabel = /*#__PURE__*/function (_AbstractShape) {
       this.setAttribute('maxWidth', value);
     }
   }, {
+    key: "width",
+    get: function get() {
+      var _this$cropAndMeasure = this.cropAndMeasure(),
+          width = _this$cropAndMeasure.width;
+
+      return width;
+    }
+  }, {
+    key: "height",
+    get: function get() {
+      var _this$cropAndMeasure2 = this.cropAndMeasure(),
+          height = _this$cropAndMeasure2.height;
+
+      return height;
+    }
+  }, {
     key: "getTextMetrics",
     value: function getTextMetrics(text) {
       return measureText(this.fontStyle, this.fontWeight, this.fontSize, this.fontFamily, this.baseline, this.align, text);
@@ -1695,10 +1737,10 @@ var CanvasLabel = /*#__PURE__*/function (_AbstractShape) {
   }, {
     key: "getBoundingBox",
     value: function getBoundingBox(offset) {
-      var _this$cropAndMeasure = this.cropAndMeasure(),
-          textMetrics = _this$cropAndMeasure.textMetrics,
-          width = _this$cropAndMeasure.width,
-          height = _this$cropAndMeasure.height;
+      var _this$cropAndMeasure3 = this.cropAndMeasure(),
+          textMetrics = _this$cropAndMeasure3.textMetrics,
+          width = _this$cropAndMeasure3.width,
+          height = _this$cropAndMeasure3.height;
 
       var left = this.x + offset.x - textMetrics.actualBoundingBoxLeft;
       var right = left + width;
@@ -1760,12 +1802,14 @@ var CanvasLabel = /*#__PURE__*/function (_AbstractShape) {
   return CanvasLabel;
 }(AbstractShape);
 registerCustomElement('canvas-label', CanvasLabel);
-function Label(_ref) {
+var label = /*#__PURE__*/React__default["default"].forwardRef(function (_ref, ref) {
   var children = _ref.children,
       props = _objectWithoutProperties(_ref, _excluded$1);
 
-  return /*#__PURE__*/React__default["default"].createElement("canvas-label", props, children);
-}
+  return /*#__PURE__*/React__default["default"].createElement("canvas-label", _extends({}, props, {
+    ref: ref
+  }), children);
+});
 
 var _excluded = ["children"];
 var CanvasRoundedRectangle = /*#__PURE__*/function (_CanvasRectangle) {
@@ -1821,19 +1865,21 @@ var CanvasRoundedRectangle = /*#__PURE__*/function (_CanvasRectangle) {
   return CanvasRoundedRectangle;
 }(CanvasRectangle);
 registerCustomElement('canvas-rounded-rectangle', CanvasRoundedRectangle);
-function RoundedRectangle(_ref) {
+var roundedRectangle = /*#__PURE__*/React__default["default"].forwardRef(function (_ref, ref) {
   var children = _ref.children,
       props = _objectWithoutProperties(_ref, _excluded);
 
-  return /*#__PURE__*/React__default["default"].createElement("canvas-rounded-rectangle", props, children);
-}
+  return /*#__PURE__*/React__default["default"].createElement("canvas-rounded-rectangle", _extends({}, props, {
+    ref: ref
+  }), children);
+});
 
-exports.Arc = Arc;
-exports.Circle = Circle;
-exports.Image = Image$1;
-exports.Label = Label;
+exports.Arc = arc;
+exports.Circle = circle;
+exports.Image = image;
+exports.Label = label;
 exports.Layer = Layer;
-exports.Rectangle = Rectangle;
-exports.RoundedRectangle = RoundedRectangle;
+exports.Rectangle = rectangle;
+exports.RoundedRectangle = roundedRectangle;
 exports.ScaleMode = ScaleMode;
 exports.Stage = Stage;
