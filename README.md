@@ -165,7 +165,7 @@ import {
 
 ### \<Stage>
 
-The `<Stage>` component is the outermost container and should have one or several `<Layer>` child components.
+The `<Stage>` component is the outermost container and should have one or more `<Layer>` child components.
 The `<Stage>` component handles the dimensions and scaling.
 
 ```jsx
@@ -205,7 +205,7 @@ Properties / Attributes | Description | Default value
 
 Each `<Layer>` component holds an HTML `<canvas>` element. Using multiple sibling `<Layer>` components is a good way of
 optimizing canvas redrawing when animating content. See for
-instance [Use multiple layered canvases for complex scenes](https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API/Tutorial/Optimizing_canvas#use_multiple_layered_canvases_for_complex_scenes)
+instance ["Use multiple layered canvases for complex scenes"](https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API/Tutorial/Optimizing_canvas#use_multiple_layered_canvases_for_complex_scenes)
 for a detailed explanation of this optimization strategy.
 
 The following event handlers passed to the `<Layer>` component will be forwarded to the underlying HTML `<canvas>`
