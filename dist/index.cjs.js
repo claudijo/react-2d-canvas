@@ -526,7 +526,9 @@ function Layer(_ref) {
       scaleX: 1,
       scaleY: 1
     };
-    Array.from(children).forEach(function (child) {
+    Array.from(children).sort(function (a, b) {
+      return a.zIndex - b.zIndex;
+    }).forEach(function (child) {
       child.draw(ctx, offset);
 
       if (hasMouseEventListeners(child)) {
@@ -904,6 +906,14 @@ var AbstractShape = /*#__PURE__*/function (_HTMLElement) {
       this.setAttribute('borderDash', value);
     }
   }, {
+    key: "zIndex",
+    get: function get() {
+      return this.getNumericAttribute('zIndex');
+    },
+    set: function set(value) {
+      this.setAttribute('zIndex', value);
+    }
+  }, {
     key: "getBoundingBox",
     value: function getBoundingBox() {
       throw new Error('Method must be implemented in sub class');
@@ -938,7 +948,7 @@ var AbstractShape = /*#__PURE__*/function (_HTMLElement) {
   }], [{
     key: "observedAttributes",
     get: function get() {
-      return ['x', 'y', 'backgroundcolor', 'bordercolor', 'borderwidth', 'opacity', 'originx', 'originy', 'rotation', 'scalex', 'scaley', 'shadowcolor', 'shadowblur', 'shadowoffsetx', 'shadowoffsety', 'borderdash'];
+      return ['x', 'y', 'backgroundcolor', 'bordercolor', 'borderwidth', 'opacity', 'originx', 'originy', 'rotation', 'scalex', 'scaley', 'shadowcolor', 'shadowblur', 'shadowoffsetx', 'shadowoffsety', 'borderdash', 'zindex'];
     }
   }]);
 

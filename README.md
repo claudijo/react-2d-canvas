@@ -247,6 +247,7 @@ Common Attributes | Description | Default value
 `shadowOffsetX` | Distance that shadows will be offset horizontally. | `0`
 `shadowOffsetY` | Distance that shadows will be offset vertically. | `0`
 `borderDash` | String of comma separated numbers that define the border dash pattern. | &nbsp;
+`zIndex` | Draw priority among children. Child components with higher `zIndex` will be drawn on top of siblings with lower `zIndex`. | `0`
 
 #### Event Handlers
 
