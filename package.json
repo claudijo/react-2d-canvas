@@ -9,6 +9,14 @@
     "build": "rollup -c",
     "build-watch": "rollup -c -w"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/claudijo/react-2d-canvas.git"
+  },
+  "homepage": "https://github.com/claudijo/react-2d-canvas",
+  "bugs": {
+    "url": "https://github.com/claudijo/react-2d-canvas/issues"
+  },
   "files": [
     "dist",
     "example.png"
