@@ -10,7 +10,8 @@
     "build-watch": "rollup -c -w"
   },
   "files": [
-    "dist"
+    "dist",
+    "example.png"
   ],
   "keywords": [
     "canvas",
