@@ -9,6 +9,9 @@
     "build": "rollup -c",
     "build-watch": "rollup -c -w"
   },
+  "files": [
+    "dist"
+  ],
   "keywords": [
     "canvas",
     "2d",
