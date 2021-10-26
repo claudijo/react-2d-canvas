@@ -26,7 +26,7 @@ development that React offers.
 
 ## Example Usage
 
-![Example canvas](example.png)
+![Example canvas](https://raw.githubusercontent.com/claudijo/react-2d-canvas/main/example.png)
 
 ```js
 import {
