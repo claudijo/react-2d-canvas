@@ -557,10 +557,12 @@ function Layer(_ref) {
     requestAnimationFrame(onUpdate);
     canvas.addEventListener('attributeChange', onUpdate);
     canvas.addEventListener('connect', onUpdate);
+    canvas.addEventListener('disconnect', onUpdate);
     canvas.addEventListener('load', onUpdate);
     return function () {
       canvas.removeEventListener('attributeChange', onUpdate);
       canvas.removeEventListener('connect', onUpdate);
+      canvas.removeEventListener('disconnect', onUpdate);
       canvas.removeEventListener('load', onUpdate);
     };
   }, [drawChildren]);
@@ -711,29 +713,47 @@ var AbstractShape = /*#__PURE__*/function (_HTMLElement) {
       opacity: 1
     };
     _this.pipeline = [];
+    _this.canvasElement = null;
     return _this;
   }
 
   _createClass(AbstractShape, [{
     key: "attributeChangedCallback",
     value: function attributeChangedCallback(name, oldValue, newValue) {
-      var customEvent = new CustomEvent('attributeChange', {
-        bubbles: true,
-        detail: {
-          name: name,
-          oldValue: oldValue,
-          newValue: newValue
-        }
-      });
-      this.dispatchEvent(customEvent);
+      if (this.canvasElement) {
+        var customEvent = new CustomEvent('attributeChange', {
+          bubbles: true,
+          detail: {
+            name: name,
+            oldValue: oldValue,
+            newValue: newValue
+          }
+        });
+        this.canvasElement.dispatchEvent(customEvent);
+      }
     }
   }, {
     key: "connectedCallback",
     value: function connectedCallback() {
-      var customEvent = new CustomEvent('connect', {
-        bubbles: true
-      });
-      this.dispatchEvent(customEvent);
+      this.canvasElement = this.closest('canvas');
+
+      if (this.canvasElement) {
+        var customEvent = new CustomEvent('connect', {
+          bubbles: true
+        });
+        this.canvasElement.dispatchEvent(customEvent);
+      }
+    }
+  }, {
+    key: "disconnectedCallback",
+    value: function disconnectedCallback() {
+      if (this.canvasElement) {
+        var customEvent = new CustomEvent('disconnect', {
+          bubbles: true
+        });
+        this.canvasElement.dispatchEvent(customEvent);
+        this.canvasElement = null;
+      }
     }
   }, {
     key: "getTextualAttribute",
