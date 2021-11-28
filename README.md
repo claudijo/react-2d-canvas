@@ -22,6 +22,7 @@ Note that React 2D Canvas is a minimalistic framework that focuses on drawing sh
     * [\<RoundedRectangle>](#roundedrectangle)
     * [\<Circle>](#circle)
     * [\<Arc>](#arc)
+    * [\<Sector>](#sector)
     * [\<Label>](#label)
     * [\<Image>](#image)
 * [License](#license)
