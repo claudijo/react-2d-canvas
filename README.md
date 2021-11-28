@@ -6,6 +6,8 @@ builds on top of custom web components from the Web Components standard.
 React 2D Canvas was created with simple 2D canvas games in mind, with focus on resource efficiency and the ease of
 development that React offers.
 
+Note that React 2D Canvas is a minimalistic framework that focuses on drawing shapes, consequently features such as audio and animation are not included. Users of React 2D Canvas are encoraged to incorporate suitable libraries to add auxiliary functionality (eg. [react spring](https://react-spring.io/)) or roll your their own custom solutions.
+
 ## Table of Content
 
 * [Example Usage](#example-usage)
