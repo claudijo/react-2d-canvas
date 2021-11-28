@@ -1,6 +1,6 @@
 {
   "name": "react-2d-canvas",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "Draw text, images, and shapes on an HTML Canvas element using a declarative JSX syntax.",
   "main": "dist/index.cjs.js",
   "module": "dist/index.esm.js",
