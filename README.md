@@ -359,6 +359,28 @@ Attributes | Description | Default value
 `endAngle` | End angle in radians measured from 12'o clock. | `0`
 `counterclockwise` | Boolean value indicating direction of drawing from `startAngle` to `endAngle`. | `false`
 
+### \<Sector>
+
+```jsx
+<Sector
+  x={100}
+  y={100}
+  radius={20}
+  borderColor="#333"
+  startAngle={45 * Math.PI / 180}
+  endAngle={180 * Math.PI / 180}
+/>
+```
+
+The `<Sector>` (ie. circular sector) component accepts all common attributes, and the additional attributes listed below.
+
+Attributes | Description | Default value
+--- | --- | ---
+`radius` | Radius. | `0`
+`startAngle` | Start angle in radians measured from 12'o clock. | `0`
+`endAngle` | End angle in radians measured from 12'o clock. | `0`
+`counterclockwise` | Boolean value indicating direction of drawing from `startAngle` to `endAngle`. | `false`
+
 ### \<Label>
 
 ```jsx
@@ -414,6 +436,8 @@ The `<Image>` component accepts all common attributes, and the additional attrib
 
 Attributes | Description | Default value
 --- | --- | ---
+`width` | Pixel width. | `0`
+`height` | Pixel height. | `0`
 `src` | Path to image. | &nbsp;
 
 ## License

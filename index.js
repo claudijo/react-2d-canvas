@@ -9,3 +9,4 @@ export { default as Circle } from './lib/shapes/circle';
 export { default as Arc } from './lib/shapes/arc';
 export { default as Label } from './lib/shapes/label';
 export { default as RoundedRectangle } from './lib/shapes/rounded-rectangle';
+export { default as Sector } from './lib/shapes/sector';
