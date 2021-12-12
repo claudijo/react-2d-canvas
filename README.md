@@ -4,7 +4,7 @@ Draw 2D shapes, images and text on an HTML Canvas element using a declarative JS
 
 React 2D Canvas makes it easy to create simple 2D canvas games by leveraging on the developer ergonomics that [React](https://reactjs.org/) offers.
 
-React 2D Canvas is lightweight with focus on drawing 2D shapes, images and text, consequently features such as audio, hit detection and animation are not built in. Users of React 2D Canvas are encoraged to incorporate suitable libraries to add auxiliary functionality or roll your their own custom solutions.
+React 2D Canvas is lightweight with focus on efficiently producing 2D drawings. Features such as audio, hit detection and animation are not built in. Users of React 2D Canvas are encoraged to incorporate suitable libraries to add auxiliary functionality or roll your their own custom solutions as needed.
 
 ## Table of Content
 
