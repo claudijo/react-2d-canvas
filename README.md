@@ -13,7 +13,7 @@ React 2D Canvas is lightweight with focus on efficiently producing 2D drawings. 
 * [API](#api)
     * [\<Stage>](#stage)
     * [\<Layer>](#layer)
-    * [Shapes Components](#shapes-components)
+    * [Shape Components](#shape-components)
         * [Event Handlers](#event-handlers)
         * [Nesting and Inheritance](#nesting-and-inheritance)
     * [\<Rectangle>](#rectangle)
@@ -43,7 +43,8 @@ function App() {
   return (
     <Stage
       width={640}
-      height={420} backgroundColor="#2d002b"
+      height={420} 
+      backgroundColor="#2d002b"
       scaleMode={ScaleMode.SCALE_TO_FIT}
     >
       {/*Static background layer*/}
@@ -221,7 +222,7 @@ element.
 * `onMouseOut`
 * `onMouseOver`
 
-### Shapes Components
+### Shape Components
 
 Shape components, such as `<Rectangle>`, `<Circle>`, and `<Label>` are available for representing different graphical
 elements and user interface controls.
