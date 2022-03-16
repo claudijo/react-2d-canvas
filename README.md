@@ -23,6 +23,7 @@ React 2D Canvas is lightweight with focus on efficiently producing 2D drawings. 
     * [\<Sector>](#sector)
     * [\<Label>](#label)
     * [\<Image>](#image)
+    * [\<Polygon>](#polygon)
 * [License](#license)
 
 ## Example Usage
@@ -441,6 +442,26 @@ Attributes | Description | Default value
 `width` | Pixel width. | `0`
 `height` | Pixel height. | `0`
 `src` | Path to image. | &nbsp;
+
+### \<Polygon>
+
+```jsx
+<Polygon
+  x={100}
+  y={100}
+  borderColor="#333"
+  backgroundColor="#666"
+  radius={48}
+  sides={6}
+/>
+```
+
+The `<Polygon>` (ie. regular polygon, such as a hexagon) component accepts all common attributes, and the additional attributes listed below.
+
+Attributes | Description | Default value
+--- | --- | ---
+`radius` | Radius. | `0`
+`sides` | Number of sides. | `0`
 
 ## License
 
