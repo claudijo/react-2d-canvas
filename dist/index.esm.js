@@ -1896,42 +1896,53 @@ var roundedRectangle = /*#__PURE__*/React.forwardRef(function (_ref, ref) {
   }), children);
 });
 
-var traceSector = function traceSector(sector) {
+var tracePolygon = function tracePolygon(polygon) {
   return function (ctx, offset) {
-    var _sector$startAngle, _sector$endAngle, _sector$counterclockw;
+    var _polygon$getBoundingB = polygon.getBoundingBox(offset),
+        left = _polygon$getBoundingB.left,
+        top = _polygon$getBoundingB.top;
 
-    var _sector$getBoundingBo = sector.getBoundingBox(offset),
-        left = _sector$getBoundingBo.left,
-        top = _sector$getBoundingBo.top;
-
+    var x = left + polygon.radius;
+    var y = top + polygon.radius;
     ctx.beginPath();
-    ctx.moveTo(left + sector.radius, top + sector.radius);
-    ctx.arc(left + sector.radius, top + sector.radius, sector.radius - sector.borderWidth / 2, ((_sector$startAngle = sector.startAngle) !== null && _sector$startAngle !== void 0 ? _sector$startAngle : 0) - Math.PI / 2, ((_sector$endAngle = sector.endAngle) !== null && _sector$endAngle !== void 0 ? _sector$endAngle : Math.PI * 2) - Math.PI / 2, (_sector$counterclockw = sector.counterclockwise) !== null && _sector$counterclockw !== void 0 ? _sector$counterclockw : false);
-    ctx.closePath();
+    ctx.moveTo(x + polygon.radius, y);
+
+    for (var side = 0; side <= polygon.sides; side++) {
+      ctx.lineTo(x + polygon.radius * Math.cos(side * 2 * Math.PI / polygon.sides), y + polygon.radius * Math.sin(side * 2 * Math.PI / polygon.sides));
+    }
+
     return true;
   };
 };
 
 var _excluded = ["children"];
-var CanvasSector = /*#__PURE__*/function (_CanvasArc) {
-  _inherits(CanvasSector, _CanvasArc);
+var CanvasPolygon = /*#__PURE__*/function (_CanvasCircle) {
+  _inherits(CanvasPolygon, _CanvasCircle);
 
-  var _super = _createSuper(CanvasSector);
+  var _super = _createSuper(CanvasPolygon);
 
-  function CanvasSector() {
-    _classCallCheck(this, CanvasSector);
+  function CanvasPolygon() {
+    _classCallCheck(this, CanvasPolygon);
 
     return _super.apply(this, arguments);
   }
 
-  _createClass(CanvasSector, [{
+  _createClass(CanvasPolygon, [{
+    key: "sides",
+    get: function get() {
+      return this.getNumericAttribute('sides');
+    },
+    set: function set(value) {
+      this.setAttribute('sides', value);
+    }
+  }, {
     key: "drawHitArea",
     value: function drawHitArea(ctx, offset, color) {
       var backgroundColor = this.backgroundColor,
           borderColor = this.borderColor,
           borderWidth = this.borderWidth;
       this.pipeline.push(rotateAndScale(this));
-      this.pipeline.push(traceSector(this));
+      this.pipeline.push(tracePolygon(this));
       this.pipeline.push(fillAndStroke({
         backgroundColor: backgroundColor ? color : undefined,
         borderColor: borderColor ? color : undefined,
@@ -1943,23 +1954,28 @@ var CanvasSector = /*#__PURE__*/function (_CanvasArc) {
     key: "draw",
     value: function draw(ctx, offset) {
       this.pipeline.push(rotateAndScale(this));
-      this.pipeline.push(traceSector(this));
+      this.pipeline.push(tracePolygon(this));
       this.pipeline.push(shade(this));
       this.pipeline.push(fillAndStroke(this));
       this.drawPipeline(ctx, offset);
     }
+  }], [{
+    key: "observedAttributes",
+    get: function get() {
+      return [].concat(_toConsumableArray(CanvasCircle.observedAttributes), ['sides']);
+    }
   }]);
 
-  return CanvasSector;
-}(CanvasArc);
-registerCustomElement('canvas-sector', CanvasSector);
-var sector = /*#__PURE__*/React.forwardRef(function (_ref, ref) {
+  return CanvasPolygon;
+}(CanvasCircle);
+registerCustomElement('canvas-polygon', CanvasPolygon);
+var polygon = /*#__PURE__*/React.forwardRef(function (_ref, ref) {
   var children = _ref.children,
       props = _objectWithoutProperties(_ref, _excluded);
 
-  return /*#__PURE__*/React.createElement("canvas-sector", _extends({}, props, {
+  return /*#__PURE__*/React.createElement("canvas-polygon", _extends({}, props, {
     ref: ref
   }), children);
 });
 
-export { arc as Arc, circle as Circle, image as Image, label as Label, Layer, rectangle as Rectangle, roundedRectangle as RoundedRectangle, ScaleMode, sector as Sector, Stage };
+export { arc as Arc, circle as Circle, image as Image, label as Label, Layer, polygon as Polygon, rectangle as Rectangle, roundedRectangle as RoundedRectangle, ScaleMode, Stage };
