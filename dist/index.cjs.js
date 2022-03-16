@@ -433,7 +433,9 @@ var registerCustomElement = function registerCustomElement(name, constructor) {
   customElements.get(name) || customElements.define(name, constructor);
 };
 var hasMouseEventListeners = function hasMouseEventListeners(element) {
-  return !!element.onclick || !!element.onMouseDown || !!element.onmouseup || !!element.onmousedown || !!element.onmousemove || !!element.onmouseover || !!element.onmouseout;
+  // The below check is not working as it is not possible to detect existence of
+  // arbitrary mouse event handler. Just return true now.
+  return true;
 };
 var localCoordinatesFromMouseEvent = function localCoordinatesFromMouseEvent(event) {
   var scale = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 1;
@@ -493,18 +495,12 @@ var ColorIncrementer = /*#__PURE__*/function () {
   return ColorIncrementer;
 }();
 
+var _excluded$8 = ["children"];
 var colorIncrementer = new ColorIncrementer();
 var hitElementMap = new Map();
 function Layer(_ref) {
   var children = _ref.children,
-      onClick = _ref.onClick,
-      onMouseMove = _ref.onMouseMove,
-      onMouseDown = _ref.onMouseDown,
-      onMouseUp = _ref.onMouseUp,
-      onDoubleClick = _ref.onDoubleClick,
-      onContextMenu = _ref.onContextMenu,
-      onMouseOut = _ref.onMouseOut,
-      onMouseOver = _ref.onMouseOver;
+      rest = _objectWithoutProperties(_ref, _excluded$8);
 
   var _useContext = React.useContext(StageContext),
       scale = _useContext.scale,
@@ -531,7 +527,7 @@ function Layer(_ref) {
     }).forEach(function (child) {
       child.draw(ctx, offset);
 
-      if (hasMouseEventListeners(child)) {
+      if (hasMouseEventListeners()) {
         var _ctx = hitCanvasElement.current.getContext('2d');
 
         var color = colorIncrementer.next();
@@ -582,13 +578,17 @@ function Layer(_ref) {
     return hitElementMap.get(color);
   };
 
-  var dispatchEvent = function dispatchEvent(target, type) {
+  var dispatchEvent = function dispatchEvent(target, type, extra) {
+    target.dispatchEvent(createMouseEvent(target, type, extra));
+  };
+
+  var createMouseEvent = function createMouseEvent(target, type) {
     var extra = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
-    target.dispatchEvent(new MouseEvent(type, _objectSpread2(_objectSpread2({}, extra), {}, {
+    return new MouseEvent(type, _objectSpread2(_objectSpread2({}, extra), {}, {
       view: window,
       bubbles: true,
       cancelable: true
-    })));
+    }));
   };
 
   var extraForEvent = function extraForEvent(event, point) {
@@ -627,62 +627,38 @@ function Layer(_ref) {
     }
 
     var point = localCoordinatesFromMouseEvent(event, scale);
-    var target = getEventTargetAt(point);
     var extra = extraForEvent(event, point);
+    var childTarget = getEventTargetAt(point); // Handle mouse event for Layer component by calling corresponding passed
+    // event handler
 
-    if (target) {
-      dispatchEvent(target, event.type, extra);
+    var handlers = Object.keys(rest).reduce(function (acc, key) {
+      acc[key.toLowerCase()] = rest[key];
+      return acc;
+    }, {});
+    var handler = handlers['on' + event.type];
+
+    if (handler) {
+      handler(createMouseEvent(event.target, event.type, extra));
+    } // Handle mouse events for child components
+
+
+    if (childTarget) {
+      dispatchEvent(childTarget, event.type, extra);
 
       if (event.type === 'mousemove') {
-        if (hoveredElement.current && target !== hoveredElement.current) {
+        if (hoveredElement.current && childTarget !== hoveredElement.current) {
           dispatchEvent(hoveredElement.current, 'mouseout', extra);
         }
 
-        if (hoveredElement.current !== target) {
-          hoveredElement.current = target;
-          dispatchEvent(target, 'mouseover', extra);
+        if (hoveredElement.current !== childTarget) {
+          hoveredElement.current = childTarget;
+          dispatchEvent(childTarget, 'mouseover', extra);
         }
       }
-    } else if (hoveredElement.current || event.type === 'mouseout' && hoveredElement.current // Check mouse out for whole canvas
-    ) {
+    } else if (event.type === 'mouseout' && hoveredElement.current) {
       dispatchEvent(hoveredElement.current, 'mouseout', extra);
       hoveredElement.current = null;
     }
-  };
-
-  var onClickProxy = function onClickProxy(event) {
-    onClick && onClick(event);
-    onMouseEvent(event);
-  };
-
-  var onMouseMoveProxy = function onMouseMoveProxy(event) {
-    onMouseMove && onMouseMove(event);
-    onMouseEvent(event);
-  };
-
-  var onMouseDownProxy = function onMouseDownProxy(event) {
-    onMouseDown && onMouseDown(event);
-    onMouseEvent(event);
-  };
-
-  var onMouseUpProxy = function onMouseUpProxy(event) {
-    onMouseUp && onMouseUp(event);
-    onMouseEvent(event);
-  };
-
-  var onDoubleClickProxy = function onDoubleClickProxy(event) {
-    onDoubleClick && onDoubleClick(event);
-    onMouseEvent(event);
-  };
-
-  var onContextMenuProxy = function onContextMenuProxy(event) {
-    onContextMenu && onContextMenu(event);
-    onMouseEvent(event);
-  };
-
-  var onMouseOutProxy = function onMouseOutProxy(event) {
-    onMouseOut && onMouseOut(event);
-    onMouseEvent(event);
   };
 
   return /*#__PURE__*/React__default["default"].createElement("canvas", {
@@ -692,14 +668,14 @@ function Layer(_ref) {
     width: width,
     height: height,
     ref: canvasElement,
-    onClick: onClickProxy,
-    onMouseMove: onMouseMoveProxy,
-    onMouseDown: onMouseDownProxy,
-    onMouseUp: onMouseUpProxy,
-    onDoubleClick: onDoubleClickProxy,
-    onContextMenu: onContextMenuProxy,
-    onMouseOut: onMouseOutProxy,
-    onMouseOver: onMouseOver
+    onClick: onMouseEvent,
+    onMouseMove: onMouseEvent,
+    onMouseDown: onMouseEvent,
+    onMouseUp: onMouseEvent,
+    onDoubleClick: onMouseEvent,
+    onContextMenu: onMouseEvent,
+    onMouseOut: onMouseEvent,
+    onMouseOver: onMouseEvent
   }, children);
 }
 
@@ -1079,7 +1055,7 @@ var fillAndStroke = function fillAndStroke(shape) {
   };
 };
 
-var _excluded$6 = ["children"];
+var _excluded$7 = ["children"];
 var CanvasRectangle = /*#__PURE__*/function (_AbstractShape) {
   _inherits(CanvasRectangle, _AbstractShape);
 
@@ -1171,7 +1147,7 @@ var CanvasRectangle = /*#__PURE__*/function (_AbstractShape) {
 registerCustomElement('canvas-rectangle', CanvasRectangle);
 var rectangle = /*#__PURE__*/React__default["default"].forwardRef(function (_ref, ref) {
   var children = _ref.children,
-      props = _objectWithoutProperties(_ref, _excluded$6);
+      props = _objectWithoutProperties(_ref, _excluded$7);
 
   return /*#__PURE__*/React__default["default"].createElement("canvas-rectangle", _extends({}, props, {
     ref: ref
@@ -1355,7 +1331,7 @@ var loadImage = function loadImage(image) {
   };
 };
 
-var _excluded$5 = ["children"];
+var _excluded$6 = ["children"];
 var CanvasImage = /*#__PURE__*/function (_CanvasRectangle) {
   _inherits(CanvasImage, _CanvasRectangle);
 
@@ -1402,7 +1378,7 @@ var CanvasImage = /*#__PURE__*/function (_CanvasRectangle) {
 registerCustomElement('canvas-image', CanvasImage);
 var image = /*#__PURE__*/React__default["default"].forwardRef(function (_ref, ref) {
   var children = _ref.children,
-      props = _objectWithoutProperties(_ref, _excluded$5);
+      props = _objectWithoutProperties(_ref, _excluded$6);
 
   return /*#__PURE__*/React__default["default"].createElement("canvas-image", _extends({}, props, {
     ref: ref
@@ -1423,7 +1399,7 @@ var traceArc = function traceArc(arc) {
   };
 };
 
-var _excluded$4 = ["children"];
+var _excluded$5 = ["children"];
 var CanvasCircle = /*#__PURE__*/function (_AbstractShape) {
   _inherits(CanvasCircle, _AbstractShape);
 
@@ -1507,14 +1483,14 @@ var CanvasCircle = /*#__PURE__*/function (_AbstractShape) {
 registerCustomElement('canvas-circle', CanvasCircle);
 var circle = /*#__PURE__*/React__default["default"].forwardRef(function (_ref, ref) {
   var children = _ref.children,
-      props = _objectWithoutProperties(_ref, _excluded$4);
+      props = _objectWithoutProperties(_ref, _excluded$5);
 
   return /*#__PURE__*/React__default["default"].createElement("canvas-circle", _extends({}, props, {
     ref: ref
   }), children);
 });
 
-var _excluded$3 = ["children"];
+var _excluded$4 = ["children"];
 var CanvasArc = /*#__PURE__*/function (_CanvasCircle) {
   _inherits(CanvasArc, _CanvasCircle);
 
@@ -1562,7 +1538,7 @@ var CanvasArc = /*#__PURE__*/function (_CanvasCircle) {
 registerCustomElement('canvas-arc', CanvasArc);
 var arc = /*#__PURE__*/React__default["default"].forwardRef(function (_ref, ref) {
   var children = _ref.children,
-      props = _objectWithoutProperties(_ref, _excluded$3);
+      props = _objectWithoutProperties(_ref, _excluded$4);
 
   return /*#__PURE__*/React__default["default"].createElement("canvas-arc", _extends({}, props, {
     ref: ref
@@ -1646,7 +1622,7 @@ var cropEnd = function cropEnd(text) {
   return cropped + ellipses;
 };
 
-var _excluded$2 = ["children"];
+var _excluded$3 = ["children"];
 var CanvasLabel = /*#__PURE__*/function (_AbstractShape) {
   _inherits(CanvasLabel, _AbstractShape);
 
@@ -1834,14 +1810,14 @@ var CanvasLabel = /*#__PURE__*/function (_AbstractShape) {
 registerCustomElement('canvas-label', CanvasLabel);
 var label = /*#__PURE__*/React__default["default"].forwardRef(function (_ref, ref) {
   var children = _ref.children,
-      props = _objectWithoutProperties(_ref, _excluded$2);
+      props = _objectWithoutProperties(_ref, _excluded$3);
 
   return /*#__PURE__*/React__default["default"].createElement("canvas-label", _extends({}, props, {
     ref: ref
   }), children);
 });
 
-var _excluded$1 = ["children"];
+var _excluded$2 = ["children"];
 var CanvasRoundedRectangle = /*#__PURE__*/function (_CanvasRectangle) {
   _inherits(CanvasRoundedRectangle, _CanvasRectangle);
 
@@ -1897,9 +1873,75 @@ var CanvasRoundedRectangle = /*#__PURE__*/function (_CanvasRectangle) {
 registerCustomElement('canvas-rounded-rectangle', CanvasRoundedRectangle);
 var roundedRectangle = /*#__PURE__*/React__default["default"].forwardRef(function (_ref, ref) {
   var children = _ref.children,
-      props = _objectWithoutProperties(_ref, _excluded$1);
+      props = _objectWithoutProperties(_ref, _excluded$2);
 
   return /*#__PURE__*/React__default["default"].createElement("canvas-rounded-rectangle", _extends({}, props, {
+    ref: ref
+  }), children);
+});
+
+var traceSector = function traceSector(sector) {
+  return function (ctx, offset) {
+    var _sector$startAngle, _sector$endAngle, _sector$counterclockw;
+
+    var _sector$getBoundingBo = sector.getBoundingBox(offset),
+        left = _sector$getBoundingBo.left,
+        top = _sector$getBoundingBo.top;
+
+    ctx.beginPath();
+    ctx.moveTo(left + sector.radius, top + sector.radius);
+    ctx.arc(left + sector.radius, top + sector.radius, sector.radius - sector.borderWidth / 2, ((_sector$startAngle = sector.startAngle) !== null && _sector$startAngle !== void 0 ? _sector$startAngle : 0) - Math.PI / 2, ((_sector$endAngle = sector.endAngle) !== null && _sector$endAngle !== void 0 ? _sector$endAngle : Math.PI * 2) - Math.PI / 2, (_sector$counterclockw = sector.counterclockwise) !== null && _sector$counterclockw !== void 0 ? _sector$counterclockw : false);
+    ctx.closePath();
+    return true;
+  };
+};
+
+var _excluded$1 = ["children"];
+var CanvasSector = /*#__PURE__*/function (_CanvasArc) {
+  _inherits(CanvasSector, _CanvasArc);
+
+  var _super = _createSuper(CanvasSector);
+
+  function CanvasSector() {
+    _classCallCheck(this, CanvasSector);
+
+    return _super.apply(this, arguments);
+  }
+
+  _createClass(CanvasSector, [{
+    key: "drawHitArea",
+    value: function drawHitArea(ctx, offset, color) {
+      var backgroundColor = this.backgroundColor,
+          borderColor = this.borderColor,
+          borderWidth = this.borderWidth;
+      this.pipeline.push(rotateAndScale(this));
+      this.pipeline.push(traceSector(this));
+      this.pipeline.push(fillAndStroke({
+        backgroundColor: backgroundColor ? color : undefined,
+        borderColor: borderColor ? color : undefined,
+        borderWidth: borderWidth
+      }));
+      this.drawPipeline(ctx, offset);
+    }
+  }, {
+    key: "draw",
+    value: function draw(ctx, offset) {
+      this.pipeline.push(rotateAndScale(this));
+      this.pipeline.push(traceSector(this));
+      this.pipeline.push(shade(this));
+      this.pipeline.push(fillAndStroke(this));
+      this.drawPipeline(ctx, offset);
+    }
+  }]);
+
+  return CanvasSector;
+}(CanvasArc);
+registerCustomElement('canvas-sector', CanvasSector);
+var sector = /*#__PURE__*/React__default["default"].forwardRef(function (_ref, ref) {
+  var children = _ref.children,
+      props = _objectWithoutProperties(_ref, _excluded$1);
+
+  return /*#__PURE__*/React__default["default"].createElement("canvas-sector", _extends({}, props, {
     ref: ref
   }), children);
 });
@@ -1995,4 +2037,5 @@ exports.Polygon = polygon;
 exports.Rectangle = rectangle;
 exports.RoundedRectangle = roundedRectangle;
 exports.ScaleMode = ScaleMode;
+exports.Sector = sector;
 exports.Stage = Stage;
