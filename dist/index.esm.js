@@ -424,11 +424,6 @@ function Stage(_ref) {
 var registerCustomElement = function registerCustomElement(name, constructor) {
   customElements.get(name) || customElements.define(name, constructor);
 };
-var hasMouseEventListeners = function hasMouseEventListeners(element) {
-  // The below check is not working as it is not possible to detect existence of
-  // arbitrary mouse event handler. Just return true now.
-  return true;
-};
 var localCoordinatesFromMouseEvent = function localCoordinatesFromMouseEvent(event) {
   var scale = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 1;
   var rect = event.target.getBoundingClientRect();
@@ -505,6 +500,10 @@ function Layer(_ref) {
     width: width,
     height: height
   }));
+  var lastSibling = useRef(null);
+  useEffect(function () {
+    lastSibling.current = canvasElement.current.parentNode.querySelector('canvas:last-of-type');
+  }, [canvasElement]);
   var drawChildren = useCallback(function (ctx, children) {
     var offset = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {
       x: 0,
@@ -517,9 +516,9 @@ function Layer(_ref) {
     Array.from(children).sort(function (a, b) {
       return a.zIndex - b.zIndex;
     }).forEach(function (child) {
-      child.draw(ctx, offset);
+      child.draw(ctx, offset); // Assume all children in top most layer might have mouse event handlers
 
-      if (hasMouseEventListeners()) {
+      if (lastSibling.current && lastSibling.current === canvasElement.current) {
         var _ctx = hitCanvasElement.current.getContext('2d');
 
         var color = colorIncrementer.next();
@@ -538,7 +537,7 @@ function Layer(_ref) {
         });
       }
     });
-  }, []);
+  }, [lastSibling]);
   useEffect(function () {
     var canvas = canvasElement.current;
     var ctx = canvas.getContext('2d');
