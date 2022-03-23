@@ -340,6 +340,63 @@ function _nonIterableRest() {
   throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
 }
 
+function _createForOfIteratorHelper(o, allowArrayLike) {
+  var it = typeof Symbol !== "undefined" && o[Symbol.iterator] || o["@@iterator"];
+
+  if (!it) {
+    if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") {
+      if (it) o = it;
+      var i = 0;
+
+      var F = function () {};
+
+      return {
+        s: F,
+        n: function () {
+          if (i >= o.length) return {
+            done: true
+          };
+          return {
+            done: false,
+            value: o[i++]
+          };
+        },
+        e: function (e) {
+          throw e;
+        },
+        f: F
+      };
+    }
+
+    throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
+  }
+
+  var normalCompletion = true,
+      didErr = false,
+      err;
+  return {
+    s: function () {
+      it = it.call(o);
+    },
+    n: function () {
+      var step = it.next();
+      normalCompletion = step.done;
+      return step;
+    },
+    e: function (e) {
+      didErr = true;
+      err = e;
+    },
+    f: function () {
+      try {
+        if (!normalCompletion && it.return != null) it.return();
+      } finally {
+        if (didErr) throw err;
+      }
+    }
+  };
+}
+
 var StageContext = /*#__PURE__*/React.createContext(null);
 
 var throttle = function throttle(fn) {
@@ -424,9 +481,7 @@ function Stage(_ref) {
 var registerCustomElement = function registerCustomElement(name, constructor) {
   customElements.get(name) || customElements.define(name, constructor);
 };
-var localCoordinatesFromMouseEvent = function localCoordinatesFromMouseEvent(event) {
-  var scale = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 1;
-  var rect = event.target.getBoundingClientRect();
+var localCoordinatesFromEvent = function localCoordinatesFromEvent(rect, event, scale) {
   var clientX = event.clientX,
       clientY = event.clientY;
   var x = (clientX - rect.x) / scale;
@@ -446,6 +501,100 @@ var createElement = function createElement(type) {
   }
 
   return element;
+};
+var eventInit = function eventInit(sourceEvent) {
+  var bubbles = sourceEvent.bubbles,
+      cancelable = sourceEvent.cancelable,
+      composed = sourceEvent.composed;
+  return {
+    bubbles: bubbles,
+    cancelable: cancelable,
+    composed: composed
+  };
+};
+var uIEventInit = function uIEventInit(sourceEvent) {
+  var detail = sourceEvent.detail,
+      view = sourceEvent.view,
+      sourceCapabilities = sourceEvent.sourceCapabilities;
+  return _objectSpread2(_objectSpread2({}, eventInit(sourceEvent)), {}, {
+    detail: detail,
+    view: view,
+    sourceCapabilities: sourceCapabilities
+  });
+};
+var mouseEventInit = function mouseEventInit(sourceEvent) {
+  var screenX = sourceEvent.screenX,
+      screenY = sourceEvent.screenY,
+      clientX = sourceEvent.clientX,
+      clientY = sourceEvent.clientY,
+      ctrlKey = sourceEvent.ctrlKey,
+      shiftKey = sourceEvent.shiftKey,
+      altKey = sourceEvent.altKey,
+      metaKey = sourceEvent.metaKey,
+      button = sourceEvent.button,
+      buttons = sourceEvent.buttons,
+      relatedTarget = sourceEvent.relatedTarget,
+      region = sourceEvent.region;
+  return _objectSpread2(_objectSpread2({}, uIEventInit(sourceEvent)), {}, {
+    screenX: screenX,
+    screenY: screenY,
+    clientX: clientX,
+    clientY: clientY,
+    ctrlKey: ctrlKey,
+    shiftKey: shiftKey,
+    altKey: altKey,
+    metaKey: metaKey,
+    button: button,
+    buttons: buttons,
+    relatedTarget: relatedTarget,
+    region: region
+  });
+};
+var touchEventInit = function touchEventInit(sourceEvent) {
+  var touches = sourceEvent.touches,
+      targetTouches = sourceEvent.targetTouches,
+      changedTouches = sourceEvent.changedTouches,
+      ctrlKey = sourceEvent.ctrlKey,
+      shiftKey = sourceEvent.shiftKey,
+      altKey = sourceEvent.altKey,
+      metaKey = sourceEvent.metaKey;
+  return _objectSpread2(_objectSpread2({}, uIEventInit(sourceEvent)), {}, {
+    touches: touches,
+    targetTouches: targetTouches,
+    changedTouches: changedTouches,
+    ctrlKey: ctrlKey,
+    shiftKey: shiftKey,
+    altKey: altKey,
+    metaKey: metaKey
+  });
+};
+var touchInit = function touchInit(sourceTouch) {
+  var identifier = sourceTouch.identifier,
+      target = sourceTouch.target,
+      clientX = sourceTouch.clientX,
+      clientY = sourceTouch.clientY,
+      screenX = sourceTouch.screenX,
+      screenY = sourceTouch.screenY,
+      pageX = sourceTouch.pageX,
+      pageY = sourceTouch.pageY,
+      radiusX = sourceTouch.radiusX,
+      radiusY = sourceTouch.radiusY,
+      rotationAngle = sourceTouch.rotationAngle,
+      force = sourceTouch.force;
+  return {
+    identifier: identifier,
+    target: target,
+    clientX: clientX,
+    clientY: clientY,
+    screenX: screenX,
+    screenY: screenY,
+    pageX: pageX,
+    pageY: pageY,
+    radiusX: radiusX,
+    radiusY: radiusY,
+    rotationAngle: rotationAngle,
+    force: force
+  };
 };
 
 var ColorIncrementer = /*#__PURE__*/function () {
@@ -485,6 +634,11 @@ var ColorIncrementer = /*#__PURE__*/function () {
 var _excluded$8 = ["children"];
 var colorIncrementer = new ColorIncrementer();
 var hitElementMap = new Map();
+
+var notNullFilter = function notNullFilter(item) {
+  return item !== null;
+};
+
 function Layer(_ref) {
   var children = _ref.children,
       rest = _objectWithoutProperties(_ref, _excluded$8);
@@ -495,6 +649,7 @@ function Layer(_ref) {
       height = _useContext.height;
 
   var hoveredElement = useRef(null);
+  var touchEntities = useRef({});
   var canvasElement = useRef(null);
   var hitCanvasElement = useRef(createElement('canvas', {
     width: width,
@@ -516,7 +671,7 @@ function Layer(_ref) {
     Array.from(children).sort(function (a, b) {
       return a.zIndex - b.zIndex;
     }).forEach(function (child) {
-      child.draw(ctx, offset); // Assume all children in top most layer might have mouse event handlers
+      child.draw(ctx, offset); // Assume all children in top most layer might have mouse / touch event handlers
 
       if (lastSibling.current && lastSibling.current === canvasElement.current) {
         var _ctx = hitCanvasElement.current.getContext('2d');
@@ -569,47 +724,90 @@ function Layer(_ref) {
     return hitElementMap.get(color);
   };
 
-  var dispatchEvent = function dispatchEvent(target, type, extra) {
-    target.dispatchEvent(createMouseEvent(target, type, extra));
+  var onTouchStart = function onTouchStart(event) {
+    if (event.target !== canvasElement.current) {
+      return;
+    }
+
+    var rect = event.target.getBoundingClientRect();
+    var changedTouches = Array.from(event.changedTouches).map(function (changedTouch) {
+      var point = localCoordinatesFromEvent(rect, changedTouch, scale);
+      var target = getEventTargetAt(point);
+
+      if (!target) {
+        return null;
+      }
+
+      var touch = new Touch(_objectSpread2(_objectSpread2({}, touchInit(changedTouch)), {}, {
+        target: target,
+        clientX: point.x,
+        clientY: point.y
+      }));
+      touchEntities.current[touch.identifier] = touch;
+      return touch;
+    }).filter(notNullFilter);
+    changedTouches.forEach(function (changedTouch) {
+      changedTouch.target.dispatchEvent(new TouchEvent('touchstart', _objectSpread2(_objectSpread2({}, touchEventInit(event)), {}, {
+        touches: Object.values(touchEntities.current),
+        targetTouches: Object.values(touchEntities.current).filter(function (targetTouch) {
+          return targetTouch.target === changedTouch.target;
+        }),
+        changedTouches: changedTouches
+      })));
+    });
   };
 
-  var createMouseEvent = function createMouseEvent(target, type) {
-    var extra = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
-    return new MouseEvent(type, _objectSpread2(_objectSpread2({}, extra), {}, {
-      view: window,
-      bubbles: true,
-      cancelable: true
-    }));
-  };
+  var onTouchEvent = function onTouchEvent(event) {
+    if (event.target !== canvasElement.current) {
+      return;
+    }
 
-  var extraForEvent = function extraForEvent(event, point) {
-    var altKey = event.altKey,
-        button = event.button,
-        buttons = event.buttons,
-        ctrlKey = event.ctrlKey,
-        metaKey = event.metaKey,
-        shiftKey = event.shiftKey;
-    return {
-      clientX: point.x,
-      clientY: point.y,
-      altKey: altKey,
-      button: button,
-      buttons: buttons,
-      ctrlKey: ctrlKey,
-      metaKey: metaKey,
-      shiftKey: shiftKey,
-      region: null // Missing extra properties to implement...
-      // movementX: 0,
-      // movementY: 0,
-      // offsetX: 0,
-      // offsetY: 0,
-      // pageX: 0,
-      // pageY: 0,
-      // relatedTarget: null,
-      // screenX: 0,
-      // screenY: 0,
+    var rect = event.target.getBoundingClientRect();
 
+    var touchMapper = function touchMapper(touch) {
+      if (!touchEntities.current[touch.identifier]) {
+        return null;
+      }
+
+      var point = localCoordinatesFromEvent(rect, touch, scale);
+      return new Touch(_objectSpread2(_objectSpread2({}, touchInit(touch)), {}, {
+        target: touchEntities.current[touch.identifier].target,
+        clientX: point.x,
+        clientY: point.y
+      }));
     };
+
+    var touches = Array.from(event.touches).map(touchMapper).filter(notNullFilter);
+    var targetTouches = touches.filter(function (touch) {
+      return touch.target === event.target;
+    });
+    var changedTouches = Array.from(event.changedTouches).map(touchMapper).filter(notNullFilter); // This will fire duplicate touch `moveevents` if there are multiple touches,
+    // but hard to avoid...
+
+    var touchTargets = event.type === 'touchmove' ? touches : changedTouches;
+    touchTargets.forEach(function (touch) {
+      touch.target.dispatchEvent(new TouchEvent(event.type, _objectSpread2(_objectSpread2({}, touchEventInit(event)), {}, {
+        touches: touches,
+        targetTouches: targetTouches,
+        changedTouches: changedTouches
+      })));
+    });
+
+    if (event.type === 'touchend' || event.type === 'touchcancel') {
+      var _iterator = _createForOfIteratorHelper(event.changedTouches),
+          _step;
+
+      try {
+        for (_iterator.s(); !(_step = _iterator.n()).done;) {
+          var touch = _step.value;
+          delete touchEntities.current[touch.identifier];
+        }
+      } catch (err) {
+        _iterator.e(err);
+      } finally {
+        _iterator.f();
+      }
+    }
   };
 
   var onMouseEvent = function onMouseEvent(event) {
@@ -617,8 +815,8 @@ function Layer(_ref) {
       return;
     }
 
-    var point = localCoordinatesFromMouseEvent(event, scale);
-    var extra = extraForEvent(event, point);
+    var rect = event.target.getBoundingClientRect();
+    var point = localCoordinatesFromEvent(rect, event, scale);
     var childTarget = getEventTargetAt(point); // Handle mouse event for Layer component by calling corresponding passed
     // event handler
 
@@ -626,28 +824,38 @@ function Layer(_ref) {
       acc[key.toLowerCase()] = rest[key];
       return acc;
     }, {});
+
+    var eventInit = _objectSpread2(_objectSpread2({}, mouseEventInit(event)), {}, {
+      clientX: point.x,
+      clientY: point.y
+    });
+
     var handler = handlers['on' + event.type];
 
     if (handler) {
-      handler(createMouseEvent(event.target, event.type, extra));
+      // FIXME: This event will not have correct event target, since it is not dispatched
+      handler(new MouseEvent(event.type, eventInit));
     } // Handle mouse events for child components
 
 
     if (childTarget) {
-      dispatchEvent(childTarget, event.type, extra);
+      childTarget.dispatchEvent(new MouseEvent(event.type, _objectSpread2(_objectSpread2({}, mouseEventInit(event)), {}, {
+        clientX: point.x,
+        clientY: point.y
+      })));
 
       if (event.type === 'mousemove') {
         if (hoveredElement.current && childTarget !== hoveredElement.current) {
-          dispatchEvent(hoveredElement.current, 'mouseout', extra);
+          hoveredElement.current.dispatchEvent(new MouseEvent('mouseout', eventInit));
         }
 
         if (hoveredElement.current !== childTarget) {
           hoveredElement.current = childTarget;
-          dispatchEvent(childTarget, 'mouseover', extra);
+          hoveredElement.current.dispatchEvent(new MouseEvent('mouseover', eventInit));
         }
       }
     } else if (event.type === 'mouseout' && hoveredElement.current) {
-      dispatchEvent(hoveredElement.current, 'mouseout', extra);
+      hoveredElement.current.dispatchEvent(new MouseEvent('mouseout', eventInit));
       hoveredElement.current = null;
     }
   };
@@ -666,7 +874,11 @@ function Layer(_ref) {
     onDoubleClick: onMouseEvent,
     onContextMenu: onMouseEvent,
     onMouseOut: onMouseEvent,
-    onMouseOver: onMouseEvent
+    onMouseOver: onMouseEvent,
+    onTouchStart: onTouchStart,
+    onTouchMove: onTouchEvent,
+    onTouchEnd: onTouchEvent,
+    onTouchCancel: onTouchEvent
   }, children);
 }
 
