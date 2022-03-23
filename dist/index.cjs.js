@@ -825,26 +825,20 @@ function Layer(_ref) {
 
     var rect = event.target.getBoundingClientRect();
     var point = localCoordinatesFromEvent(rect, event, scale);
-    var childTarget = getEventTargetAt(point); // Handle mouse event for Layer component by calling corresponding passed
-    // event handler
-
-    var handlers = Object.keys(rest).reduce(function (acc, key) {
-      acc[key.toLowerCase()] = rest[key];
-      return acc;
-    }, {});
+    var childTarget = getEventTargetAt(point);
 
     var eventInit = _objectSpread2(_objectSpread2({}, mouseEventInit(event)), {}, {
       clientX: point.x,
       clientY: point.y
-    });
+    }); // Handle mouse event for Layer component by calling corresponding passed
+    // event handler
 
-    var handler = handlers['on' + event.type];
 
-    if (handler) {
-      // FIXME: This event will not have correct event target, since it is not dispatched
-      handler(new MouseEvent(event.type, eventInit));
-    } // Handle mouse events for child components
-
+    Object.keys(rest).forEach(function (key) {
+      if (key.toLowerCase() === "on".concat(event.type)) {
+        rest[key](new MouseEvent(event.type, eventInit));
+      }
+    }); // Handle mouse events for child components
 
     if (childTarget) {
       childTarget.dispatchEvent(new MouseEvent(event.type, _objectSpread2(_objectSpread2({}, mouseEventInit(event)), {}, {
