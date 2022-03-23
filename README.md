@@ -169,7 +169,7 @@ import {
 ### \<Stage>
 
 The `<Stage>` component is the outermost container and should have one or more `<Layer>` child components.
-The `<Stage>` component handles the dimensions and scaling.
+The `<Stage>` component handles dimensions and scaling.
 
 ```jsx
 import { Stage, ScaleMode } from 'react-2d-canvas';
@@ -211,8 +211,9 @@ optimizing canvas redrawing when animating content. See for
 instance ["Use multiple layered canvases for complex scenes"](https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API/Tutorial/Optimizing_canvas#use_multiple_layered_canvases_for_complex_scenes)
 for a detailed explanation of this optimization strategy.
 
-The following event handlers passed to the `<Layer>` component will be forwarded to the underlying HTML `<canvas>`
-element.
+The following mouse event handlers passed to the `<Layer>` component will be forwarded to the underlying HTML `<canvas>`
+element. Note that the `<Layer>` component does currently not accept touch event handlers. (Child shape components accept
+touch event handlers, as mentioned below.)
 
 * `onClick`
 * `onMouseMove`
@@ -254,7 +255,7 @@ Common Attributes | Description | Default value
 
 #### Event Handlers
 
-All shapes accept the following mouse event handlers:
+All shapes accept the following ui event handlers:
 
 * `onClick`
 * `onMouseMove`
@@ -264,6 +265,11 @@ All shapes accept the following mouse event handlers:
 * `onContextMenu`
 * `onMouseOut`
 * `onMouseOver`
+* `onMouseOver`
+* `onTouchStart`
+* `onTouchMove` 
+* `onTouchEnd`
+* `onTouchCancel`
 
 #### Nesting and Inheritance
 
