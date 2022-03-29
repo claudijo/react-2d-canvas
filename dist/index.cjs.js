@@ -1840,6 +1840,14 @@ var CanvasLabel = /*#__PURE__*/function (_AbstractShape) {
   }
 
   _createClass(CanvasLabel, [{
+    key: "textContent",
+    get: function get() {
+      return this.getTextualAttribute('textContent', '');
+    },
+    set: function set(value) {
+      this.setAttribute('textContent', value);
+    }
+  }, {
     key: "fontSize",
     get: function get() {
       return this.getNumericAttribute('fontSize', 10);
@@ -2006,7 +2014,7 @@ var CanvasLabel = /*#__PURE__*/function (_AbstractShape) {
   }], [{
     key: "observedAttributes",
     get: function get() {
-      return [].concat(_toConsumableArray(AbstractShape.observedAttributes), ['color', 'fontsize', 'fontfamily', 'fontstyle', 'fontweight', 'baseline', 'align', 'maxwidth']);
+      return [].concat(_toConsumableArray(AbstractShape.observedAttributes), ['color', 'fontsize', 'fontfamily', 'fontstyle', 'fontweight', 'baseline', 'align', 'maxwidth', 'textcontent']);
     }
   }]);
 
