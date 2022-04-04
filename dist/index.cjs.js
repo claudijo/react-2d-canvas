@@ -13,14 +13,9 @@ function ownKeys(object, enumerableOnly) {
 
   if (Object.getOwnPropertySymbols) {
     var symbols = Object.getOwnPropertySymbols(object);
-
-    if (enumerableOnly) {
-      symbols = symbols.filter(function (sym) {
-        return Object.getOwnPropertyDescriptor(object, sym).enumerable;
-      });
-    }
-
-    keys.push.apply(keys, symbols);
+    enumerableOnly && (symbols = symbols.filter(function (sym) {
+      return Object.getOwnPropertyDescriptor(object, sym).enumerable;
+    })), keys.push.apply(keys, symbols);
   }
 
   return keys;
@@ -28,19 +23,12 @@ function ownKeys(object, enumerableOnly) {
 
 function _objectSpread2(target) {
   for (var i = 1; i < arguments.length; i++) {
-    var source = arguments[i] != null ? arguments[i] : {};
-
-    if (i % 2) {
-      ownKeys(Object(source), true).forEach(function (key) {
-        _defineProperty(target, key, source[key]);
-      });
-    } else if (Object.getOwnPropertyDescriptors) {
-      Object.defineProperties(target, Object.getOwnPropertyDescriptors(source));
-    } else {
-      ownKeys(Object(source)).forEach(function (key) {
-        Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key));
-      });
-    }
+    var source = null != arguments[i] ? arguments[i] : {};
+    i % 2 ? ownKeys(Object(source), !0).forEach(function (key) {
+      _defineProperty(target, key, source[key]);
+    }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) {
+      Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key));
+    });
   }
 
   return target;
@@ -65,6 +53,9 @@ function _defineProperties(target, props) {
 function _createClass(Constructor, protoProps, staticProps) {
   if (protoProps) _defineProperties(Constructor.prototype, protoProps);
   if (staticProps) _defineProperties(Constructor, staticProps);
+  Object.defineProperty(Constructor, "prototype", {
+    writable: false
+  });
   return Constructor;
 }
 
@@ -112,6 +103,9 @@ function _inherits(subClass, superClass) {
       writable: true,
       configurable: true
     }
+  });
+  Object.defineProperty(subClass, "prototype", {
+    writable: false
   });
   if (superClass) _setPrototypeOf(subClass, superClass);
 }
@@ -999,6 +993,14 @@ var AbstractShape = /*#__PURE__*/function (_HTMLElement) {
       this.setAttribute('backgroundColor', value);
     }
   }, {
+    key: "backgroundImage",
+    get: function get() {
+      return this.getAttribute('backgroundImage');
+    },
+    set: function set(value) {
+      this.setAttribute('backgroundImage', value);
+    }
+  }, {
     key: "borderColor",
     get: function get() {
       return this.getAttribute('borderColor');
@@ -1149,7 +1151,7 @@ var AbstractShape = /*#__PURE__*/function (_HTMLElement) {
   }], [{
     key: "observedAttributes",
     get: function get() {
-      return ['x', 'y', 'backgroundcolor', 'bordercolor', 'borderwidth', 'opacity', 'originx', 'originy', 'rotation', 'scalex', 'scaley', 'shadowcolor', 'shadowblur', 'shadowoffsetx', 'shadowoffsety', 'borderdash', 'zindex'];
+      return ['x', 'y', 'backgroundcolor', 'backgroundimage', 'bordercolor', 'borderwidth', 'opacity', 'originx', 'originy', 'rotation', 'scalex', 'scaley', 'shadowcolor', 'shadowblur', 'shadowoffsetx', 'shadowoffsety', 'borderdash', 'zindex'];
     }
   }]);
 
@@ -1260,6 +1262,83 @@ var fillAndStroke = function fillAndStroke(shape) {
   };
 };
 
+var imageCache = {};
+var drawBackgroundImage = function drawBackgroundImage(shape) {
+  return function (ctx, offset) {
+    if (!shape.image) {
+      return true;
+    }
+
+    var _shape$getBoundingBox = shape.getBoundingBox(offset),
+        left = _shape$getBoundingBox.left,
+        right = _shape$getBoundingBox.right,
+        top = _shape$getBoundingBox.top,
+        bottom = _shape$getBoundingBox.bottom;
+
+    var width = right - left;
+    var height = bottom - top;
+    ctx.drawImage(shape.image, left, top, width, height);
+    return true;
+  };
+};
+var drawImage = function drawImage(image) {
+  return function (ctx, offset) {
+    var _image$getBoundingBox = image.getBoundingBox(offset),
+        left = _image$getBoundingBox.left,
+        top = _image$getBoundingBox.top;
+
+    ctx.drawImage(image.image, left + image.borderWidth, top + image.borderWidth, image.width - image.borderWidth * 2, image.height - image.borderWidth * 2);
+    return true;
+  };
+};
+var clipBackgroundImage = function clipBackgroundImage(shape) {
+  return function (ctx, offset) {
+    if (!shape.image) {
+      return true;
+    }
+
+    ctx.clip();
+    return true;
+  };
+};
+
+var loadImage = function loadImage(shape, ctx, src) {
+  if (!src) {
+    return true;
+  }
+
+  shape.image = imageCache[src];
+
+  if (!shape.image) {
+    shape.image = new Image();
+
+    shape.image.onload = function () {
+      var customEvent = new CustomEvent('load', {
+        bubbles: true
+      });
+      shape.dispatchEvent(customEvent);
+    };
+
+    shape.image.src = src;
+    imageCache[src] = shape.image;
+  }
+
+  return shape.image.complete;
+};
+
+var loadSrc = function loadSrc(shape) {
+  return function (ctx, offset) {
+    var src = shape.src;
+    return loadImage(shape, ctx, src);
+  };
+};
+var loadBackgroundImage = function loadBackgroundImage(shape) {
+  return function (ctx, offset) {
+    var backgroundImage = shape.backgroundImage;
+    return loadImage(shape, ctx, backgroundImage);
+  };
+};
+
 var _excluded$7 = ["children"];
 var CanvasRectangle = /*#__PURE__*/function (_AbstractShape) {
   _inherits(CanvasRectangle, _AbstractShape);
@@ -1334,10 +1413,13 @@ var CanvasRectangle = /*#__PURE__*/function (_AbstractShape) {
   }, {
     key: "draw",
     value: function draw(ctx, offset) {
+      this.pipeline.push(loadBackgroundImage(this));
       this.pipeline.push(rotateAndScale(this));
       this.pipeline.push(traceRectangle(this));
       this.pipeline.push(shade(this));
       this.pipeline.push(fillAndStroke(this));
+      this.pipeline.push(clipBackgroundImage(this));
+      this.pipeline.push(drawBackgroundImage(this));
       this.drawPipeline(ctx, offset);
     }
   }], [{
@@ -1358,6 +1440,275 @@ var rectangle = /*#__PURE__*/React__default["default"].forwardRef(function (_ref
     ref: ref
   }), children);
 });
+
+var _excluded$6 = ["children"];
+var CanvasImage = /*#__PURE__*/function (_CanvasRectangle) {
+  _inherits(CanvasImage, _CanvasRectangle);
+
+  var _super = _createSuper(CanvasImage);
+
+  function CanvasImage() {
+    _classCallCheck(this, CanvasImage);
+
+    return _super.call(this);
+  }
+
+  _createClass(CanvasImage, [{
+    key: "src",
+    get: function get() {
+      return this.getAttribute('src');
+    },
+    set: function set(value) {
+      this.setAttribute('src', value);
+    }
+  }, {
+    key: "draw",
+    value: function draw(ctx, offset) {
+      this.pipeline.push(loadSrc(this));
+      this.pipeline.push(rotateAndScale(this));
+      this.pipeline.push(traceRectangle(this));
+      this.pipeline.push(shade(this));
+      this.pipeline.push(fillAndStroke(this));
+      this.pipeline.push(drawImage(this));
+      this.drawPipeline(ctx, offset);
+    }
+  }], [{
+    key: "observedAttributes",
+    get: function get() {
+      return [].concat(_toConsumableArray(CanvasRectangle.observedAttributes), ['src']);
+    }
+  }]);
+
+  return CanvasImage;
+}(CanvasRectangle);
+registerCustomElement('canvas-image', CanvasImage);
+var image = /*#__PURE__*/React__default["default"].forwardRef(function (_ref, ref) {
+  var children = _ref.children,
+      props = _objectWithoutProperties(_ref, _excluded$6);
+
+  return /*#__PURE__*/React__default["default"].createElement("canvas-image", _extends({}, props, {
+    ref: ref
+  }), children);
+});
+
+var traceArc = function traceArc(arc) {
+  return function (ctx, offset) {
+    var _arc$startAngle, _arc$endAngle, _arc$counterclockwise;
+
+    var _arc$getBoundingBox = arc.getBoundingBox(offset),
+        left = _arc$getBoundingBox.left,
+        top = _arc$getBoundingBox.top;
+
+    ctx.beginPath();
+    ctx.arc(left + arc.radius, top + arc.radius, arc.radius - arc.borderWidth / 2, ((_arc$startAngle = arc.startAngle) !== null && _arc$startAngle !== void 0 ? _arc$startAngle : 0) - Math.PI / 2, ((_arc$endAngle = arc.endAngle) !== null && _arc$endAngle !== void 0 ? _arc$endAngle : Math.PI * 2) - Math.PI / 2, (_arc$counterclockwise = arc.counterclockwise) !== null && _arc$counterclockwise !== void 0 ? _arc$counterclockwise : false);
+    return true;
+  };
+};
+
+var _excluded$5 = ["children"];
+var CanvasCircle = /*#__PURE__*/function (_AbstractShape) {
+  _inherits(CanvasCircle, _AbstractShape);
+
+  var _super = _createSuper(CanvasCircle);
+
+  function CanvasCircle() {
+    _classCallCheck(this, CanvasCircle);
+
+    return _super.apply(this, arguments);
+  }
+
+  _createClass(CanvasCircle, [{
+    key: "radius",
+    get: function get() {
+      return this.getNumericAttribute('radius');
+    },
+    set: function set(value) {
+      this.setAttribute('radius', value);
+    }
+  }, {
+    key: "getBoundingBox",
+    value: function getBoundingBox(offset) {
+      var left = this.x + offset.x - this.radius * 2 * this.originX;
+      var top = this.y + offset.y - this.radius * 2 * this.originY;
+      var right = left + this.radius * 2;
+      var bottom = top + this.radius * 2;
+      return {
+        left: left,
+        right: right,
+        top: top,
+        bottom: bottom
+      };
+    }
+  }, {
+    key: "getTranslationCenter",
+    value: function getTranslationCenter(offset) {
+      var _this$getBoundingBox = this.getBoundingBox(offset),
+          top = _this$getBoundingBox.top,
+          left = _this$getBoundingBox.left;
+
+      var x = left + this.radius * this.originX * 2;
+      var y = top + this.radius * this.originY * 2;
+      return {
+        x: x,
+        y: y
+      };
+    }
+  }, {
+    key: "drawHitArea",
+    value: function drawHitArea(ctx, offset, color) {
+      var backgroundColor = this.backgroundColor,
+          borderColor = this.borderColor,
+          borderWidth = this.borderWidth;
+      this.pipeline.push(rotateAndScale(this));
+      this.pipeline.push(traceArc(this));
+      this.pipeline.push(fillAndStroke({
+        backgroundColor: backgroundColor ? color : undefined,
+        borderColor: borderColor ? color : undefined,
+        borderWidth: borderWidth
+      }));
+      this.drawPipeline(ctx, offset);
+    }
+  }, {
+    key: "draw",
+    value: function draw(ctx, offset) {
+      this.pipeline.push(loadBackgroundImage(this));
+      this.pipeline.push(rotateAndScale(this));
+      this.pipeline.push(traceArc(this));
+      this.pipeline.push(shade(this));
+      this.pipeline.push(fillAndStroke(this));
+      this.pipeline.push(clipBackgroundImage(this));
+      this.pipeline.push(drawBackgroundImage(this));
+      this.drawPipeline(ctx, offset);
+    }
+  }], [{
+    key: "observedAttributes",
+    get: function get() {
+      return [].concat(_toConsumableArray(AbstractShape.observedAttributes), ['radius']);
+    }
+  }]);
+
+  return CanvasCircle;
+}(AbstractShape);
+registerCustomElement('canvas-circle', CanvasCircle);
+var circle = /*#__PURE__*/React__default["default"].forwardRef(function (_ref, ref) {
+  var children = _ref.children,
+      props = _objectWithoutProperties(_ref, _excluded$5);
+
+  return /*#__PURE__*/React__default["default"].createElement("canvas-circle", _extends({}, props, {
+    ref: ref
+  }), children);
+});
+
+var _excluded$4 = ["children"];
+var CanvasArc = /*#__PURE__*/function (_CanvasCircle) {
+  _inherits(CanvasArc, _CanvasCircle);
+
+  var _super = _createSuper(CanvasArc);
+
+  function CanvasArc() {
+    _classCallCheck(this, CanvasArc);
+
+    return _super.apply(this, arguments);
+  }
+
+  _createClass(CanvasArc, [{
+    key: "startAngle",
+    get: function get() {
+      return this.getNumericAttribute('startAngle');
+    },
+    set: function set(value) {
+      this.setAttribute('startAngle', value);
+    }
+  }, {
+    key: "endAngle",
+    get: function get() {
+      return this.getNumericAttribute('endAngle');
+    },
+    set: function set(value) {
+      this.setAttribute('endAngle', value);
+    }
+  }, {
+    key: "counterclockwise",
+    get: function get() {
+      return this.getBooleanAttribute('counterclockwise');
+    },
+    set: function set(value) {
+      this.setBooleanAttribute('counterclockwise', value);
+    }
+  }], [{
+    key: "observedAttributes",
+    get: function get() {
+      return [].concat(_toConsumableArray(AbstractShape.observedAttributes), ['radius', 'startangle', 'endangle', 'counterclockwise']);
+    }
+  }]);
+
+  return CanvasArc;
+}(CanvasCircle);
+registerCustomElement('canvas-arc', CanvasArc);
+var arc = /*#__PURE__*/React__default["default"].forwardRef(function (_ref, ref) {
+  var children = _ref.children,
+      props = _objectWithoutProperties(_ref, _excluded$4);
+
+  return /*#__PURE__*/React__default["default"].createElement("canvas-arc", _extends({}, props, {
+    ref: ref
+  }), children);
+});
+
+var fillAndStrokeText = function fillAndStrokeText(text) {
+  return function (ctx, offset) {
+    ctx.font = "".concat(text.fontStyle, " ").concat(text.fontWeight, " ").concat(text.fontSize, "px ").concat(text.fontFamily);
+    ctx.textBaseline = text.baseline;
+    ctx.textAlign = text.align;
+
+    var _text$cropAndMeasure = text.cropAndMeasure(),
+        textContent = _text$cropAndMeasure.textContent;
+
+    var x = text.x + offset.x;
+    var y = text.y + offset.y;
+
+    if (text.color) {
+      ctx.fillStyle = text.color;
+      ctx.fillText(textContent, x - text.borderWidth / 2, y - text.borderWidth / 2);
+    }
+
+    if (text.borderColor && text.borderWidth) {
+      ctx.strokeStyle = text.borderColor;
+      ctx.lineWidth = text.borderWidth;
+      ctx.strokeText(textContent, x - text.borderWidth / 2, y - text.borderWidth / 2);
+    }
+  };
+};
+var traceTextBox = function traceTextBox(text) {
+  return function (ctx, offset) {
+    var _text$getBoundingBox = text.getBoundingBox(offset),
+        left = _text$getBoundingBox.left,
+        top = _text$getBoundingBox.top,
+        right = _text$getBoundingBox.right,
+        bottom = _text$getBoundingBox.bottom;
+
+    ctx.beginPath();
+    ctx.rect(left - text.borderWidth / 2, top - text.borderWidth / 2, right - left, bottom - top);
+    return true;
+  };
+};
+
+function memoize(fn, cache) {
+  return function () {
+    for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
+      args[_key] = arguments[_key];
+    }
+
+    var cacheKey = args.join(',');
+    var result = cache.read(cacheKey);
+
+    if (result === undefined) {
+      result = fn.apply(void 0, args);
+      cache.write(cacheKey, result);
+    }
+
+    return result;
+  };
+}
 
 // From https://medium.com/dsinjs/implementing-lru-cache-in-javascript-94ba6755cda9
 var Node = function Node(key, value) {
@@ -1503,308 +1854,6 @@ var Lru = /*#__PURE__*/function (_Symbol$iterator) {
 
   return Lru;
 }(Symbol.iterator);
-
-var drawImage = function drawImage(image) {
-  return function (ctx, offset) {
-    var _image$getBoundingBox = image.getBoundingBox(offset),
-        left = _image$getBoundingBox.left,
-        top = _image$getBoundingBox.top;
-
-    ctx.drawImage(image.image, left + image.borderWidth, top + image.borderWidth, image.width - image.borderWidth * 2, image.height - image.borderWidth * 2);
-    return true;
-  };
-};
-var loadImage = function loadImage(image) {
-  return function (ctx, offset) {
-    image.image = image.imageCache.read(image.src);
-
-    if (!image.image) {
-      image.image = new Image();
-
-      image.image.onload = function () {
-        var customEvent = new CustomEvent('load', {
-          bubbles: true
-        });
-        image.dispatchEvent(customEvent);
-      };
-
-      image.image.src = image.src;
-      image.imageCache.write(image.src, image.image);
-    }
-
-    return image.image.complete;
-  };
-};
-
-var _excluded$6 = ["children"];
-var CanvasImage = /*#__PURE__*/function (_CanvasRectangle) {
-  _inherits(CanvasImage, _CanvasRectangle);
-
-  var _super = _createSuper(CanvasImage);
-
-  function CanvasImage() {
-    var _this;
-
-    _classCallCheck(this, CanvasImage);
-
-    _this = _super.call(this);
-    _this.imageCache = new Lru();
-    return _this;
-  }
-
-  _createClass(CanvasImage, [{
-    key: "src",
-    get: function get() {
-      return this.getAttribute('src');
-    },
-    set: function set(value) {
-      this.setAttribute('src', value);
-    }
-  }, {
-    key: "draw",
-    value: function draw(ctx, offset) {
-      this.pipeline.push(loadImage(this));
-      this.pipeline.push(rotateAndScale(this));
-      this.pipeline.push(traceRectangle(this));
-      this.pipeline.push(shade(this));
-      this.pipeline.push(fillAndStroke(this));
-      this.pipeline.push(drawImage(this));
-      this.drawPipeline(ctx, offset);
-    }
-  }], [{
-    key: "observedAttributes",
-    get: function get() {
-      return [].concat(_toConsumableArray(CanvasRectangle.observedAttributes), ['src']);
-    }
-  }]);
-
-  return CanvasImage;
-}(CanvasRectangle);
-registerCustomElement('canvas-image', CanvasImage);
-var image = /*#__PURE__*/React__default["default"].forwardRef(function (_ref, ref) {
-  var children = _ref.children,
-      props = _objectWithoutProperties(_ref, _excluded$6);
-
-  return /*#__PURE__*/React__default["default"].createElement("canvas-image", _extends({}, props, {
-    ref: ref
-  }), children);
-});
-
-var traceArc = function traceArc(arc) {
-  return function (ctx, offset) {
-    var _arc$startAngle, _arc$endAngle, _arc$counterclockwise;
-
-    var _arc$getBoundingBox = arc.getBoundingBox(offset),
-        left = _arc$getBoundingBox.left,
-        top = _arc$getBoundingBox.top;
-
-    ctx.beginPath();
-    ctx.arc(left + arc.radius, top + arc.radius, arc.radius - arc.borderWidth / 2, ((_arc$startAngle = arc.startAngle) !== null && _arc$startAngle !== void 0 ? _arc$startAngle : 0) - Math.PI / 2, ((_arc$endAngle = arc.endAngle) !== null && _arc$endAngle !== void 0 ? _arc$endAngle : Math.PI * 2) - Math.PI / 2, (_arc$counterclockwise = arc.counterclockwise) !== null && _arc$counterclockwise !== void 0 ? _arc$counterclockwise : false);
-    return true;
-  };
-};
-
-var _excluded$5 = ["children"];
-var CanvasCircle = /*#__PURE__*/function (_AbstractShape) {
-  _inherits(CanvasCircle, _AbstractShape);
-
-  var _super = _createSuper(CanvasCircle);
-
-  function CanvasCircle() {
-    _classCallCheck(this, CanvasCircle);
-
-    return _super.apply(this, arguments);
-  }
-
-  _createClass(CanvasCircle, [{
-    key: "radius",
-    get: function get() {
-      return this.getNumericAttribute('radius');
-    },
-    set: function set(value) {
-      this.setAttribute('radius', value);
-    }
-  }, {
-    key: "getBoundingBox",
-    value: function getBoundingBox(offset) {
-      var left = this.x + offset.x - this.radius * 2 * this.originX;
-      var top = this.y + offset.y - this.radius * 2 * this.originY;
-      var right = left + this.radius * 2;
-      var bottom = top + this.radius * 2;
-      return {
-        left: left,
-        right: right,
-        top: top,
-        bottom: bottom
-      };
-    }
-  }, {
-    key: "getTranslationCenter",
-    value: function getTranslationCenter(offset) {
-      var _this$getBoundingBox = this.getBoundingBox(offset),
-          top = _this$getBoundingBox.top,
-          left = _this$getBoundingBox.left;
-
-      var x = left + this.radius * this.originX * 2;
-      var y = top + this.radius * this.originY * 2;
-      return {
-        x: x,
-        y: y
-      };
-    }
-  }, {
-    key: "drawHitArea",
-    value: function drawHitArea(ctx, offset, color) {
-      var backgroundColor = this.backgroundColor,
-          borderColor = this.borderColor,
-          borderWidth = this.borderWidth;
-      this.pipeline.push(rotateAndScale(this));
-      this.pipeline.push(traceArc(this));
-      this.pipeline.push(fillAndStroke({
-        backgroundColor: backgroundColor ? color : undefined,
-        borderColor: borderColor ? color : undefined,
-        borderWidth: borderWidth
-      }));
-      this.drawPipeline(ctx, offset);
-    }
-  }, {
-    key: "draw",
-    value: function draw(ctx, offset) {
-      this.pipeline.push(rotateAndScale(this));
-      this.pipeline.push(traceArc(this));
-      this.pipeline.push(shade(this));
-      this.pipeline.push(fillAndStroke(this));
-      this.drawPipeline(ctx, offset);
-    }
-  }], [{
-    key: "observedAttributes",
-    get: function get() {
-      return [].concat(_toConsumableArray(AbstractShape.observedAttributes), ['radius']);
-    }
-  }]);
-
-  return CanvasCircle;
-}(AbstractShape);
-registerCustomElement('canvas-circle', CanvasCircle);
-var circle = /*#__PURE__*/React__default["default"].forwardRef(function (_ref, ref) {
-  var children = _ref.children,
-      props = _objectWithoutProperties(_ref, _excluded$5);
-
-  return /*#__PURE__*/React__default["default"].createElement("canvas-circle", _extends({}, props, {
-    ref: ref
-  }), children);
-});
-
-var _excluded$4 = ["children"];
-var CanvasArc = /*#__PURE__*/function (_CanvasCircle) {
-  _inherits(CanvasArc, _CanvasCircle);
-
-  var _super = _createSuper(CanvasArc);
-
-  function CanvasArc() {
-    _classCallCheck(this, CanvasArc);
-
-    return _super.apply(this, arguments);
-  }
-
-  _createClass(CanvasArc, [{
-    key: "startAngle",
-    get: function get() {
-      return this.getNumericAttribute('startAngle');
-    },
-    set: function set(value) {
-      this.setAttribute('startAngle', value);
-    }
-  }, {
-    key: "endAngle",
-    get: function get() {
-      return this.getNumericAttribute('endAngle');
-    },
-    set: function set(value) {
-      this.setAttribute('endAngle', value);
-    }
-  }, {
-    key: "counterclockwise",
-    get: function get() {
-      return this.getBooleanAttribute('counterclockwise');
-    },
-    set: function set(value) {
-      this.setBooleanAttribute('counterclockwise', value);
-    }
-  }], [{
-    key: "observedAttributes",
-    get: function get() {
-      return [].concat(_toConsumableArray(AbstractShape.observedAttributes), ['radius', 'startangle', 'endangle', 'counterclockwise']);
-    }
-  }]);
-
-  return CanvasArc;
-}(CanvasCircle);
-registerCustomElement('canvas-arc', CanvasArc);
-var arc = /*#__PURE__*/React__default["default"].forwardRef(function (_ref, ref) {
-  var children = _ref.children,
-      props = _objectWithoutProperties(_ref, _excluded$4);
-
-  return /*#__PURE__*/React__default["default"].createElement("canvas-arc", _extends({}, props, {
-    ref: ref
-  }), children);
-});
-
-var fillAndStrokeText = function fillAndStrokeText(text) {
-  return function (ctx, offset) {
-    ctx.font = "".concat(text.fontStyle, " ").concat(text.fontWeight, " ").concat(text.fontSize, "px ").concat(text.fontFamily);
-    ctx.textBaseline = text.baseline;
-    ctx.textAlign = text.align;
-
-    var _text$cropAndMeasure = text.cropAndMeasure(),
-        textContent = _text$cropAndMeasure.textContent;
-
-    var x = text.x + offset.x;
-    var y = text.y + offset.y;
-
-    if (text.color) {
-      ctx.fillStyle = text.color;
-      ctx.fillText(textContent, x - text.borderWidth / 2, y - text.borderWidth / 2);
-    }
-
-    if (text.borderColor && text.borderWidth) {
-      ctx.strokeStyle = text.borderColor;
-      ctx.lineWidth = text.borderWidth;
-      ctx.strokeText(textContent, x - text.borderWidth / 2, y - text.borderWidth / 2);
-    }
-  };
-};
-var traceTextBox = function traceTextBox(text) {
-  return function (ctx, offset) {
-    var _text$getBoundingBox = text.getBoundingBox(offset),
-        left = _text$getBoundingBox.left,
-        top = _text$getBoundingBox.top,
-        right = _text$getBoundingBox.right,
-        bottom = _text$getBoundingBox.bottom;
-
-    ctx.beginPath();
-    ctx.rect(left - text.borderWidth / 2, top - text.borderWidth / 2, right - left, bottom - top);
-    return true;
-  };
-};
-
-function memoize(fn, cache) {
-  return function () {
-    for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
-      args[_key] = arguments[_key];
-    }
-
-    var cacheKey = args.join(',');
-    var result = cache.read(cacheKey);
-
-    if (result === undefined) {
-      result = fn.apply(void 0, args);
-      cache.write(cacheKey, result);
-    }
-
-    return result;
-  };
-}
 
 var measureText = memoize(function (style, weight, size, family, baseline, align, text) {
   var canvas = document.createElement('canvas');
@@ -2068,10 +2117,13 @@ var CanvasRoundedRectangle = /*#__PURE__*/function (_CanvasRectangle) {
   }, {
     key: "draw",
     value: function draw(ctx, offset) {
+      this.pipeline.push(loadBackgroundImage(this));
       this.pipeline.push(rotateAndScale(this));
       this.pipeline.push(traceRoundedRectangle(this));
       this.pipeline.push(shade(this));
       this.pipeline.push(fillAndStroke(this));
+      this.pipeline.push(clipBackgroundImage(this));
+      this.pipeline.push(drawBackgroundImage(this));
       this.drawPipeline(ctx, offset);
     }
   }], [{
@@ -2139,10 +2191,13 @@ var CanvasSector = /*#__PURE__*/function (_CanvasArc) {
   }, {
     key: "draw",
     value: function draw(ctx, offset) {
+      this.pipeline.push(loadBackgroundImage(this));
       this.pipeline.push(rotateAndScale(this));
       this.pipeline.push(traceSector(this));
       this.pipeline.push(shade(this));
       this.pipeline.push(fillAndStroke(this));
+      this.pipeline.push(clipBackgroundImage(this));
+      this.pipeline.push(drawBackgroundImage(this));
       this.drawPipeline(ctx, offset);
     }
   }]);
@@ -2168,12 +2223,13 @@ var tracePolygon = function tracePolygon(polygon) {
     var x = left + polygon.radius;
     var y = top + polygon.radius;
     ctx.beginPath();
-    ctx.moveTo(x + polygon.radius, y);
+    ctx.moveTo(x + polygon.radius - polygon.borderWidth / 2, y);
 
-    for (var side = 0; side <= polygon.sides; side++) {
-      ctx.lineTo(x + polygon.radius * Math.cos(side * 2 * Math.PI / polygon.sides), y + polygon.radius * Math.sin(side * 2 * Math.PI / polygon.sides));
+    for (var side = 0; side < polygon.sides; side++) {
+      ctx.lineTo(x + (polygon.radius - polygon.borderWidth / 2) * Math.cos(side * 2 * Math.PI / polygon.sides), y + (polygon.radius - polygon.borderWidth / 2) * Math.sin(side * 2 * Math.PI / polygon.sides));
     }
 
+    ctx.closePath();
     return true;
   };
 };
@@ -2216,10 +2272,13 @@ var CanvasPolygon = /*#__PURE__*/function (_CanvasCircle) {
   }, {
     key: "draw",
     value: function draw(ctx, offset) {
+      this.pipeline.push(loadBackgroundImage(this));
       this.pipeline.push(rotateAndScale(this));
       this.pipeline.push(tracePolygon(this));
       this.pipeline.push(shade(this));
       this.pipeline.push(fillAndStroke(this));
+      this.pipeline.push(clipBackgroundImage(this));
+      this.pipeline.push(drawBackgroundImage(this));
       this.drawPipeline(ctx, offset);
     }
   }], [{

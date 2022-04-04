@@ -1,5 +1,5 @@
 import { memoize } from './memoize';
-import { Lru } from './cahce';
+import { Lru } from './cache';
 
 export const measureText = memoize((style, weight, size, family, baseline, align, text) => {
   const canvas = document.createElement('canvas');
