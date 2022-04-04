@@ -305,6 +305,7 @@ Attributes | Description | Default value
 --- | --- | ---
 `width` | Pixel width. | `0`
 `height` | Pixel height. | `0`
+`backgroundImage` | Path to image. | &nbsp;
 
 ### \<RoundedRectangle>
 
@@ -327,6 +328,7 @@ Attributes | Description | Default value
 `width` | Pixel width. | `0`
 `height` | Pixel height. | `0`
 `radius` | Corner radius. | `0`
+`backgroundImage` | Path to image. | &nbsp;
 
 ### \<Circle>
 
@@ -345,6 +347,7 @@ The `<Circle>` component accepts all common attributes, and the additional attri
 Attributes | Description | Default value
 --- | --- | ---
 `radius` | Radius. | `0`
+`backgroundImage` | Path to image. | &nbsp;
 
 ### \<Arc>
 
@@ -367,6 +370,7 @@ Attributes | Description | Default value
 `startAngle` | Start angle in radians measured from 12'o clock. | `0`
 `endAngle` | End angle in radians measured from 12'o clock. | `0`
 `counterclockwise` | Boolean value indicating direction of drawing from `startAngle` to `endAngle`. | `false`
+`backgroundImage` | Path to image. | &nbsp;
 
 ### \<Sector>
 
@@ -389,6 +393,7 @@ Attributes | Description | Default value
 `startAngle` | Start angle in radians measured from 12'o clock. | `0`
 `endAngle` | End angle in radians measured from 12'o clock. | `0`
 `counterclockwise` | Boolean value indicating direction of drawing from `startAngle` to `endAngle`. | `false`
+`backgroundImage` | Path to image. | &nbsp;
 
 ### \<Label>
 
@@ -468,6 +473,7 @@ Attributes | Description | Default value
 --- | --- | ---
 `radius` | Radius. | `0`
 `sides` | Number of sides. | `0`
+`backgroundImage` | Path to image. | &nbsp;
 
 ## License
 
