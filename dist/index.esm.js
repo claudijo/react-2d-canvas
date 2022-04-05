@@ -1296,6 +1296,10 @@ var clipBackgroundImage = function clipBackgroundImage(shape) {
 
 var loadImage = function loadImage(shape, ctx, src) {
   if (!src) {
+    if (shape.image) {
+      delete shape.image;
+    }
+
     return true;
   }
 
