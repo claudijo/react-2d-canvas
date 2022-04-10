@@ -1395,12 +1395,13 @@ var CanvasRectangle = /*#__PURE__*/function (_AbstractShape) {
     key: "drawHitArea",
     value: function drawHitArea(ctx, offset, color) {
       var backgroundColor = this.backgroundColor,
+          backgroundImage = this.backgroundImage,
           borderColor = this.borderColor,
           borderWidth = this.borderWidth;
       this.pipeline.push(rotateAndScale(this));
       this.pipeline.push(traceRectangle(this));
       this.pipeline.push(fillAndStroke({
-        backgroundColor: backgroundColor ? color : undefined,
+        backgroundColor: backgroundColor || backgroundImage ? color : undefined,
         borderColor: borderColor ? color : undefined,
         borderWidth: borderWidth
       }));
@@ -1437,6 +1438,26 @@ var rectangle = /*#__PURE__*/React.forwardRef(function (_ref, ref) {
   }), children);
 });
 
+var tracePolygon = function tracePolygon(polygon) {
+  return function (ctx, offset) {
+    var _polygon$getBoundingB = polygon.getBoundingBox(offset),
+        left = _polygon$getBoundingB.left,
+        top = _polygon$getBoundingB.top;
+
+    var x = left + polygon.radius;
+    var y = top + polygon.radius;
+    ctx.beginPath();
+    ctx.moveTo(x + polygon.radius - polygon.borderWidth / 2, y);
+
+    for (var side = 0; side < polygon.sides; side++) {
+      ctx.lineTo(x + (polygon.radius - polygon.borderWidth / 2) * Math.cos(side * 2 * Math.PI / polygon.sides), y + (polygon.radius - polygon.borderWidth / 2) * Math.sin(side * 2 * Math.PI / polygon.sides));
+    }
+
+    ctx.closePath();
+    return true;
+  };
+};
+
 var _excluded$6 = ["children"];
 var CanvasImage = /*#__PURE__*/function (_CanvasRectangle) {
   _inherits(CanvasImage, _CanvasRectangle);
@@ -1456,6 +1477,22 @@ var CanvasImage = /*#__PURE__*/function (_CanvasRectangle) {
     },
     set: function set(value) {
       this.setAttribute('src', value);
+    }
+  }, {
+    key: "drawHitArea",
+    value: function drawHitArea(ctx, offset, color) {
+      var backgroundColor = this.backgroundColor,
+          src = this.src,
+          borderColor = this.borderColor,
+          borderWidth = this.borderWidth;
+      this.pipeline.push(rotateAndScale(this));
+      this.pipeline.push(traceRectangle(this));
+      this.pipeline.push(fillAndStroke({
+        backgroundColor: backgroundColor || src ? color : undefined,
+        borderColor: borderColor ? color : undefined,
+        borderWidth: borderWidth
+      }));
+      this.drawPipeline(ctx, offset);
     }
   }, {
     key: "draw",
@@ -1553,12 +1590,13 @@ var CanvasCircle = /*#__PURE__*/function (_AbstractShape) {
     key: "drawHitArea",
     value: function drawHitArea(ctx, offset, color) {
       var backgroundColor = this.backgroundColor,
+          backgroundImage = this.backgroundImage,
           borderColor = this.borderColor,
           borderWidth = this.borderWidth;
       this.pipeline.push(rotateAndScale(this));
       this.pipeline.push(traceArc(this));
       this.pipeline.push(fillAndStroke({
-        backgroundColor: backgroundColor ? color : undefined,
+        backgroundColor: backgroundColor || backgroundImage ? color : undefined,
         borderColor: borderColor ? color : undefined,
         borderWidth: borderWidth
       }));
@@ -2031,12 +2069,13 @@ var CanvasLabel = /*#__PURE__*/function (_AbstractShape) {
     key: "drawHitArea",
     value: function drawHitArea(ctx, offset, color) {
       var backgroundColor = this.backgroundColor,
+          backgroundImage = this.backgroundImage,
           borderColor = this.borderColor,
           borderWidth = this.borderWidth;
       this.pipeline.push(rotateAndScale(this));
       this.pipeline.push(traceTextBox(this));
       this.pipeline.push(fillAndStroke({
-        backgroundColor: backgroundColor ? color : undefined,
+        backgroundColor: backgroundColor || backgroundImage ? color : undefined,
         borderColor: borderColor ? color : undefined,
         borderWidth: borderWidth
       }));
@@ -2099,12 +2138,13 @@ var CanvasRoundedRectangle = /*#__PURE__*/function (_CanvasRectangle) {
     key: "drawHitArea",
     value: function drawHitArea(ctx, offset, color) {
       var backgroundColor = this.backgroundColor,
+          backgroundImage = this.backgroundImage,
           borderColor = this.borderColor,
           borderWidth = this.borderWidth;
       this.pipeline.push(rotateAndScale(this));
       this.pipeline.push(traceRoundedRectangle(this));
       this.pipeline.push(fillAndStroke({
-        backgroundColor: backgroundColor ? color : undefined,
+        backgroundColor: backgroundColor || backgroundImage ? color : undefined,
         borderColor: borderColor ? color : undefined,
         borderWidth: borderWidth
       }));
@@ -2173,12 +2213,13 @@ var CanvasSector = /*#__PURE__*/function (_CanvasArc) {
     key: "drawHitArea",
     value: function drawHitArea(ctx, offset, color) {
       var backgroundColor = this.backgroundColor,
+          backgroundImage = this.backgroundImage,
           borderColor = this.borderColor,
           borderWidth = this.borderWidth;
       this.pipeline.push(rotateAndScale(this));
       this.pipeline.push(traceSector(this));
       this.pipeline.push(fillAndStroke({
-        backgroundColor: backgroundColor ? color : undefined,
+        backgroundColor: backgroundColor || backgroundImage ? color : undefined,
         borderColor: borderColor ? color : undefined,
         borderWidth: borderWidth
       }));
@@ -2210,26 +2251,6 @@ var sector = /*#__PURE__*/React.forwardRef(function (_ref, ref) {
   }), children);
 });
 
-var tracePolygon = function tracePolygon(polygon) {
-  return function (ctx, offset) {
-    var _polygon$getBoundingB = polygon.getBoundingBox(offset),
-        left = _polygon$getBoundingB.left,
-        top = _polygon$getBoundingB.top;
-
-    var x = left + polygon.radius;
-    var y = top + polygon.radius;
-    ctx.beginPath();
-    ctx.moveTo(x + polygon.radius - polygon.borderWidth / 2, y);
-
-    for (var side = 0; side < polygon.sides; side++) {
-      ctx.lineTo(x + (polygon.radius - polygon.borderWidth / 2) * Math.cos(side * 2 * Math.PI / polygon.sides), y + (polygon.radius - polygon.borderWidth / 2) * Math.sin(side * 2 * Math.PI / polygon.sides));
-    }
-
-    ctx.closePath();
-    return true;
-  };
-};
-
 var _excluded = ["children"];
 var CanvasPolygon = /*#__PURE__*/function (_CanvasCircle) {
   _inherits(CanvasPolygon, _CanvasCircle);
@@ -2254,12 +2275,13 @@ var CanvasPolygon = /*#__PURE__*/function (_CanvasCircle) {
     key: "drawHitArea",
     value: function drawHitArea(ctx, offset, color) {
       var backgroundColor = this.backgroundColor,
+          backgroundImage = this.backgroundImage,
           borderColor = this.borderColor,
           borderWidth = this.borderWidth;
       this.pipeline.push(rotateAndScale(this));
       this.pipeline.push(tracePolygon(this));
       this.pipeline.push(fillAndStroke({
-        backgroundColor: backgroundColor ? color : undefined,
+        backgroundColor: backgroundColor || backgroundImage ? color : undefined,
         borderColor: borderColor ? color : undefined,
         borderWidth: borderWidth
       }));
