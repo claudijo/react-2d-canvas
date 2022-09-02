@@ -1,3 +1,5 @@
+import React, { Component} from "react";
+import "./App.css";
 import {
   Stage,
   Layer,
@@ -6,7 +8,6 @@ import {
   Circle,
   Label
 } from 'react-2d-canvas';
-import './App.css';
 
 function App() {
   return (
