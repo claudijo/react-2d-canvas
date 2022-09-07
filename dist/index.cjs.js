@@ -895,6 +895,42 @@ var mouseEventInit = function mouseEventInit(sourceEvent) {
     region: region
   });
 };
+var wheelEventInit = function wheelEventInit(sourceEvent) {
+  var deltaX = sourceEvent.deltaX,
+      deltaY = sourceEvent.deltaY,
+      deltaZ = sourceEvent.deltaZ,
+      deltaMode = sourceEvent.deltaMode;
+  return _objectSpread2(_objectSpread2({}, mouseEventInit(sourceEvent)), {}, {
+    deltaX: deltaX,
+    deltaY: deltaY,
+    deltaZ: deltaZ,
+    deltaMode: deltaMode
+  });
+};
+var keyboardEventInit = function keyboardEventInit(sourceEvent) {
+  var altKey = sourceEvent.altKey,
+      code = sourceEvent.code,
+      ctrlKey = sourceEvent.ctrlKey,
+      isComposing = sourceEvent.isComposing,
+      key = sourceEvent.key,
+      locale = sourceEvent.locale,
+      location = sourceEvent.location,
+      metaKey = sourceEvent.metaKey,
+      repeat = sourceEvent.repeat,
+      shiftKey = sourceEvent.shiftKey;
+  return _objectSpread2(_objectSpread2({}, uIEventInit(sourceEvent)), {}, {
+    altKey: altKey,
+    code: code,
+    ctrlKey: ctrlKey,
+    isComposing: isComposing,
+    key: key,
+    locale: locale,
+    location: location,
+    metaKey: metaKey,
+    repeat: repeat,
+    shiftKey: shiftKey
+  });
+};
 var touchEventInit = function touchEventInit(sourceEvent) {
   var touches = sourceEvent.touches,
       targetTouches = sourceEvent.targetTouches,
@@ -976,7 +1012,7 @@ var ColorIncrementer = /*#__PURE__*/function () {
   return ColorIncrementer;
 }();
 
-var _excluded$8 = ["children"];
+var _excluded$8 = ["children", "scaleX", "scaleY", "offsetX", "offsetY", "tabIndex"];
 var colorIncrementer = new ColorIncrementer();
 var hitElementMap = new Map();
 
@@ -984,8 +1020,31 @@ var notNullFilter = function notNullFilter(item) {
   return item !== null;
 };
 
+var clear = function clear(ctx) {
+  var transform = ctx.getTransform();
+
+  if (!transform.isIdentity) {
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+  }
+
+  ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+};
+
+var scaleAndTranslate = function scaleAndTranslate(ctx) {
+  var scaleX = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 1;
+  var scaleY = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 1;
+  var dx = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : 0;
+  var dy = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : 0;
+  ctx.setTransform(scaleX, 0, 0, scaleY, dx, dy);
+};
+
 function Layer(_ref) {
   var children = _ref.children,
+      scaleX = _ref.scaleX,
+      scaleY = _ref.scaleY,
+      offsetX = _ref.offsetX,
+      offsetY = _ref.offsetY,
+      tabIndex = _ref.tabIndex,
       rest = _objectWithoutProperties(_ref, _excluded$8);
 
   var _useContext = React.useContext(StageContext),
@@ -1044,9 +1103,16 @@ function Layer(_ref) {
     var hitCanvas = hitCanvasElement.current;
     var hitCtx = hitCanvas.getContext('2d');
     var onUpdate = throttle(function (event) {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      hitCtx.clearRect(0, 0, hitCanvas.width, hitCanvas.height);
+      clear(ctx);
+      clear(hitCtx);
       colorIncrementer.reset();
+      var willTransform = typeof scaleX !== 'undefined' || typeof scaleY !== 'undefined' || typeof offsetX !== 'undefined' || typeof offsetY !== 'undefined';
+
+      if (willTransform) {
+        scaleAndTranslate(ctx, scaleX, scaleY, offsetX, offsetY);
+        scaleAndTranslate(hitCtx, scaleX, scaleY, offsetX, offsetY);
+      }
+
       drawChildren(ctx, canvasElement.current.children);
     });
     requestAnimationFrame(onUpdate);
@@ -1060,7 +1126,7 @@ function Layer(_ref) {
       canvas.removeEventListener('disconnect', onUpdate);
       canvas.removeEventListener('load', onUpdate);
     };
-  }, [drawChildren]);
+  }, [drawChildren, scaleX, scaleY, offsetX, offsetY]);
 
   var getEventTargetAt = function getEventTargetAt(point) {
     var ctx = hitCanvasElement.current.getContext('2d');
@@ -1155,6 +1221,48 @@ function Layer(_ref) {
     }
   };
 
+  var onWheelEvent = function onWheelEvent(event) {
+    if (event.target !== canvasElement.current) {
+      return;
+    }
+
+    var rect = event.target.getBoundingClientRect();
+    var point = localCoordinatesFromEvent(rect, event, scale);
+    var childTarget = getEventTargetAt(point);
+
+    var eventInit = _objectSpread2(_objectSpread2({}, wheelEventInit(event)), {}, {
+      clientX: point.x,
+      clientY: point.y
+    }); // Handle wheel event for Layer component by calling corresponding passed
+    // event handler
+
+
+    Object.keys(rest).forEach(function (key) {
+      if (key.toLowerCase() === "on".concat(event.type)) {
+        rest[key](new WheelEvent(event.type, eventInit));
+      }
+    }); // Handle mouse events for child components
+
+    if (childTarget) {
+      childTarget.dispatchEvent(new WheelEvent(event.type, eventInit));
+    }
+  };
+
+  var onKeyboardEvent = function onKeyboardEvent(event) {
+    if (event.target !== canvasElement.current) {
+      return;
+    }
+
+    var eventInit = keyboardEventInit(event); // Handle keyboard event for Layer component by calling corresponding passed
+    // event handler
+
+    Object.keys(rest).forEach(function (key) {
+      if (key.toLowerCase() === "on".concat(event.type)) {
+        rest[key](new KeyboardEvent(event.type, eventInit));
+      }
+    });
+  };
+
   var onMouseEvent = function onMouseEvent(event) {
     if (event.target !== canvasElement.current) {
       return;
@@ -1217,7 +1325,12 @@ function Layer(_ref) {
     onTouchStart: onTouchStart,
     onTouchMove: onTouchEvent,
     onTouchEnd: onTouchEvent,
-    onTouchCancel: onTouchEvent
+    onTouchCancel: onTouchEvent,
+    onWheel: onWheelEvent,
+    onKeyDown: onKeyboardEvent,
+    onKeyUp: onKeyboardEvent,
+    onKeyPress: onKeyboardEvent,
+    tabIndex: tabIndex
   }, children);
 }
 

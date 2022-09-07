@@ -36,7 +36,7 @@ export const uIEventInit = sourceEvent => {
   };
 };
 
-export const mouseEventInit = (sourceEvent) => {
+export const mouseEventInit = sourceEvent => {
   const {
     screenX,
     screenY,
@@ -68,7 +68,51 @@ export const mouseEventInit = (sourceEvent) => {
   };
 };
 
-export const touchEventInit = (sourceEvent) => {
+export const wheelEventInit = sourceEvent => {
+  const {
+    deltaX,
+    deltaY,
+    deltaZ,
+    deltaMode,
+  } = sourceEvent;
+  return {
+    ...mouseEventInit(sourceEvent),
+    deltaX,
+    deltaY,
+    deltaZ,
+    deltaMode,
+  };
+};
+
+export const keyboardEventInit = sourceEvent => {
+  const {
+    altKey,
+    code,
+    ctrlKey,
+    isComposing,
+    key,
+    locale,
+    location,
+    metaKey,
+    repeat,
+    shiftKey,
+  } = sourceEvent;
+  return {
+    ...uIEventInit(sourceEvent),
+    altKey,
+    code,
+    ctrlKey,
+    isComposing,
+    key,
+    locale,
+    location,
+    metaKey,
+    repeat,
+    shiftKey,
+  };
+};
+
+export const touchEventInit = sourceEvent => {
   const {
     touches,
     targetTouches,
@@ -88,7 +132,7 @@ export const touchEventInit = (sourceEvent) => {
     shiftKey,
     altKey,
     metaKey,
-  }
+  };
 };
 
 export const touchInit = sourceTouch => {
@@ -119,5 +163,5 @@ export const touchInit = sourceTouch => {
     radiusY,
     rotationAngle,
     force,
-  }
-}
+  };
+};

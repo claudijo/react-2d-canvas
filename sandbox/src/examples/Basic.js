@@ -1,12 +1,13 @@
-import React, { Component} from "react";
-import "./App.css";
+import React from 'react';
+import '../styles/App.css';
+
 import {
   Stage,
   Layer,
   ScaleMode,
   RoundedRectangle,
   Circle,
-  Label
+  Label,
 } from 'react-2d-canvas';
 
 function App() {

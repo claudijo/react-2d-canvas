@@ -8,6 +8,7 @@ React 2D Canvas is lightweight with focus on efficiently producing 2D drawings. 
 
 ## Table of Content
 
+* [Change Log](#change-log)
 * [Example Usage](#example-usage)
 * [Browser Support](#browser-support)
 * [API](#api)
@@ -25,6 +26,14 @@ React 2D Canvas is lightweight with focus on efficiently producing 2D drawings. 
     * [\<Image>](#image)
     * [\<Polygon>](#polygon)
 * [License](#license)
+
+## Change Log
+
+### 0.5.0
+
+* Facilitate global zooming and panning
+* Add some code [examples](https://github.com/claudijo/react-2d-canvas/tree/main/sandbox/examples)
+* Add support for keyboard and wheel events
 
 ## Example Usage
 
@@ -205,13 +214,20 @@ Properties / Attributes | Description | Default value
   </Layer>
 </Stage>
 ```
+Attributes | Description | Default value
+--- | --- | ---
+`scaleX` | Horizontal scaling | `1`
+`scaleY` | Vertical scaling | `1`
+`offsetX` | Horizontal translation | `0`
+`offsetY` | Vertical translation | `0`
+`tabIndex` | Indicates that the canvas element can be focused, which is required for keyboard events to be fired | &nbsp;
 
 Each `<Layer>` component holds an HTML `<canvas>` element. Using multiple sibling `<Layer>` components is a good way of
 optimizing canvas redrawing when animating content. See for
 instance ["Use multiple layered canvases for complex scenes"](https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API/Tutorial/Optimizing_canvas#use_multiple_layered_canvases_for_complex_scenes)
 for a detailed explanation of this optimization strategy.
 
-The following mouse event handlers passed to the `<Layer>` component will be forwarded to the underlying HTML `<canvas>`
+The following dom event handlers passed to the `<Layer>` component will be forwarded to the underlying HTML `<canvas>`
 element. Note that the `<Layer>` component does currently not accept touch event handlers. (Child shape components accept
 touch event handlers, as mentioned below.)
 
@@ -223,6 +239,14 @@ touch event handlers, as mentioned below.)
 * `onContextMenu`
 * `onMouseOut`
 * `onMouseOver`
+* `onWheel`
+* `onKeyDown`
+* `onKeyUp`
+* `onKeyPress`
+
+#### Zooming and panning
+
+Global zooming and panning can be implemented using the `scaleX`, `scaleY`, `offsetX`, and `offsetY` attributes of the `<Layer>` component. (See the [pan and zoom example implementation](https://github.com/claudijo/react-2d-canvas/tree/main/sandbox/examples/PanAndZoom.js), which relies on the mouse wheel to zoom in/out and click-and-drag to pan the layer.)
 
 ### Shape Components
 
@@ -270,6 +294,7 @@ All shapes accept the following ui event handlers:
 * `onTouchMove` 
 * `onTouchEnd`
 * `onTouchCancel`
+* `onWheel`
 
 #### Nesting and Inheritance
 
