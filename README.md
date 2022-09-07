@@ -32,7 +32,7 @@ React 2D Canvas is lightweight with focus on efficiently producing 2D drawings. 
 ### 0.5.0
 
 * Facilitate global zooming and panning
-* Add some code [examples](https://github.com/claudijo/react-2d-canvas/tree/main/sandbox/examples)
+* Add some code [examples](https://github.com/claudijo/react-2d-canvas/tree/main/sandbox/src/examples)
 * Add support for keyboard and wheel events
 
 ## Example Usage
@@ -246,7 +246,7 @@ touch event handlers, as mentioned below.)
 
 #### Zooming and panning
 
-Global zooming and panning can be implemented using the `scaleX`, `scaleY`, `offsetX`, and `offsetY` attributes of the `<Layer>` component. (See the [pan and zoom example implementation](https://github.com/claudijo/react-2d-canvas/tree/main/sandbox/examples/PanAndZoom.js), which relies on the mouse wheel to zoom in/out and click-and-drag to pan the layer.)
+Global zooming and panning can be implemented using the `scaleX`, `scaleY`, `offsetX`, and `offsetY` attributes of the `<Layer>` component. (See the [pan and zoom example implementation](https://github.com/claudijo/react-2d-canvas/blob/main/sandbox/src/examples/PanAndZoom.js), which relies on the mouse wheel to zoom in/out and click-and-drag to pan the layer.)
 
 ### Shape Components
 
