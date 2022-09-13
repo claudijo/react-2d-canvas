@@ -1036,6 +1036,16 @@ var scaleAndTranslate = function scaleAndTranslate(ctx) {
   var dx = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : 0;
   var dy = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : 0;
   ctx.setTransform(scaleX, 0, 0, scaleY, dx, dy);
+}; // To detect if `event.stopPropagation()` has been called
+// https://stackoverflow.com/a/52250493
+
+
+var isPropagationStopped = false;
+var stopPropagationFuncTemp = Event.prototype.stopPropagation;
+
+Event.prototype.stopPropagation = function () {
+  isPropagationStopped = true;
+  stopPropagationFuncTemp.apply(this, arguments);
 };
 
 function Layer(_ref) {
@@ -1233,18 +1243,23 @@ function Layer(_ref) {
     var eventInit = _objectSpread2(_objectSpread2({}, wheelEventInit(event)), {}, {
       clientX: point.x,
       clientY: point.y
-    }); // Handle wheel event for Layer component by calling corresponding passed
-    // event handler
+    });
 
-
-    Object.keys(rest).forEach(function (key) {
-      if (key.toLowerCase() === "on".concat(event.type)) {
-        rest[key](new WheelEvent(event.type, eventInit));
-      }
-    }); // Handle mouse events for child components
+    isPropagationStopped = false; // Handle mouse events for child components
 
     if (childTarget) {
       childTarget.dispatchEvent(new WheelEvent(event.type, eventInit));
+    } // Handle mouse event for Layer component by calling corresponding passed
+    // event handler, if event bubbles, ie. `stopPropagation` has not been been
+    // called
+
+
+    if (!isPropagationStopped) {
+      Object.keys(rest).forEach(function (key) {
+        if (key.toLowerCase() === "on".concat(event.type)) {
+          rest[key](new WheelEvent(event.type, eventInit));
+        }
+      });
     }
   };
 
@@ -1275,15 +1290,9 @@ function Layer(_ref) {
     var eventInit = _objectSpread2(_objectSpread2({}, mouseEventInit(event)), {}, {
       clientX: point.x,
       clientY: point.y
-    }); // Handle mouse event for Layer component by calling corresponding passed
-    // event handler
+    });
 
-
-    Object.keys(rest).forEach(function (key) {
-      if (key.toLowerCase() === "on".concat(event.type)) {
-        rest[key](new MouseEvent(event.type, eventInit));
-      }
-    }); // Handle mouse events for child components
+    isPropagationStopped = false; // Handle mouse events for child components
 
     if (childTarget) {
       childTarget.dispatchEvent(new MouseEvent(event.type, _objectSpread2(_objectSpread2({}, mouseEventInit(event)), {}, {
@@ -1304,6 +1313,17 @@ function Layer(_ref) {
     } else if (event.type === 'mouseout' && hoveredElement.current) {
       hoveredElement.current.dispatchEvent(new MouseEvent('mouseout', eventInit));
       hoveredElement.current = null;
+    } // Handle mouse event for Layer component by calling corresponding passed
+    // event handler, if event bubbles, ie. `stopPropagation` has not been been
+    // called
+
+
+    if (!isPropagationStopped) {
+      Object.keys(rest).forEach(function (key) {
+        if (key.toLowerCase() === "on".concat(event.type)) {
+          rest[key](new MouseEvent(event.type, eventInit));
+        }
+      });
     }
   };
 

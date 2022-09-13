@@ -25,9 +25,14 @@ React 2D Canvas is lightweight with focus on efficiently producing 2D drawings. 
     * [\<Label>](#label)
     * [\<Image>](#image)
     * [\<Polygon>](#polygon)
+* [Event Propagation](#event-propagation)
 * [License](#license)
 
 ## Change Log
+
+### 0.6.0
+
+* Make it possible to stop propagating mouse and wheel events from Shape components to the parent `<Layer>` component 
 
 ### 0.5.0
 
@@ -227,7 +232,7 @@ optimizing canvas redrawing when animating content. See for
 instance ["Use multiple layered canvases for complex scenes"](https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API/Tutorial/Optimizing_canvas#use_multiple_layered_canvases_for_complex_scenes)
 for a detailed explanation of this optimization strategy.
 
-The following dom event handlers passed to the `<Layer>` component will be forwarded to the underlying HTML `<canvas>`
+The following DOM event handlers passed to the `<Layer>` component will be forwarded to the underlying HTML `<canvas>`
 element. Note that the `<Layer>` component does currently not accept touch event handlers. (Child shape components accept
 touch event handlers, as mentioned below.)
 
@@ -499,6 +504,13 @@ Attributes | Description | Default value
 `radius` | Radius. | `0`
 `sides` | Number of sides. | `0`
 `backgroundImage` | Path to image. | &nbsp;
+
+
+## Event propagation
+
+UI events don't propagate from children to parent Shape Components, as you would expect from events in a normal DOM tree. However, mouse events and wheel events handled by a Shape Component will typically propagate to the parent `</Layer>` component. 
+
+Call `event.stopPropagation()` in a mouse or wheel event handler of a Shape Component to prevent those events from being propagated to the parent `<Layer>` component. (See the [stop event propagation example implementation](https://github.com/claudijo/react-2d-canvas/blob/main/sandbox/src/examples/StopEventPropagation.js).)
 
 ## License
 
