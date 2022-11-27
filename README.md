@@ -23,12 +23,17 @@ React 2D Canvas is lightweight with focus on efficiently producing 2D drawings. 
     * [\<Arc>](#arc)
     * [\<Sector>](#sector)
     * [\<Label>](#label)
+    * [\<TextField>](#TextField)
     * [\<Image>](#image)
     * [\<Polygon>](#polygon)
 * [Event Propagation](#event-propagation)
 * [License](#license)
 
 ## Change Log
+
+### 0.7.0
+
+* Add `<TextField>` canvas element to render multiple lines of text
 
 ### 0.6.0
 
@@ -439,8 +444,6 @@ Attributes | Description | Default value
   align="center"
   baseline="middle"
   maxWidth={40}
-  startAngle={45 * Math.PI / 180}
-  endAngle={180 * Math.PI / 180}
 >
   A single line of text
 </Label>
@@ -463,6 +466,47 @@ Attributes | Description | Default value
 `baseline` | Baseline of the text using one of the following values `top`, `hanging`, `middle`, `alphabetic`, `ideographic`, `bottom`. | `"alphabetic"`
 `align` | Horizontal alignment of the text using one of the following values `left`, `right`, `start`, `end`, `center`. | `"start"`
 `maxwidth` | Pixel width at which point the text will be cropped and appended with ellipses to fit within the `maxWidth`. | `Infinity`
+
+### \<TextField>
+
+```jsx
+<TextField
+  x={100}
+  y={100}
+  width={150}
+  color="red"
+  fontFamily="Helvetica"
+  fontSize={30}
+  fontStyle="italic"
+  fontWeight="bold"
+  align="center"
+  baseline="middle"
+  maxWidth={40}
+>
+  Text that will break into multiple lines
+</TextField>
+```
+
+The `<TextField>` component accepts all common attributes (except `originX` and `originY`), and the additional
+attributes listed below.
+
+Use the `align` and `baseline` attributes to change the origin of a `<TextField>`. 
+
+Note that the `<TextField>` component does *not* accept a `height` attributes since the height is derived from the text content, but there is a read-only `height` element properties that can be accessed using a `ref` to the underlying element.
+
+A block of multiple lines can be adjusted horizontally using the `align` attribute. However, the use of the `baseline` attribute is less intuitive as it operates on individual lines. To vertically adjust a block of multiple lines relative a parent element, the `y` coordinate of the `<TextField>` must be adjusted. See the [TextField example](https://github.com/claudijo/react-2d-canvas/blob/main/sandbox/src/examples/TextField.js) for this can be done for dynamic text content.)
+
+Attributes | Description | Default value
+--- | --- | ---
+`color` | Text color expressed as CSS color string. | &nbsp;
+`fontSize` | Pixel size of the text. | `10`
+`fontFamily` | Font family name of the text. | `"sans-serif"`
+`fontStyle` | Font style expressed using one of the following values `normal`, `italic`, `oblique`. | &nbsp;
+`fontWeight` | Font weight expressed in CSS font weight string or number. | `normal`
+`baseline` | Baseline of the text using one of the following values `top`, `hanging`, `middle`, `alphabetic`, `ideographic`, `bottom`. | `"alphabetic"`
+`align` | Horizontal alignment of the text using one of the following values `left`, `right`, `start`, `end`, `center`. | `"start"`
+`width` | Pixel width at which point the line of text will be broken to fit within the `width`. | `200`
+`lineHeight` | Relative line height. | `1.2`
 
 ### \<Image>
 
@@ -504,7 +548,6 @@ Attributes | Description | Default value
 `radius` | Radius. | `0`
 `sides` | Number of sides. | `0`
 `backgroundImage` | Path to image. | &nbsp;
-
 
 ## Event propagation
 

@@ -1012,7 +1012,7 @@ var ColorIncrementer = /*#__PURE__*/function () {
   return ColorIncrementer;
 }();
 
-var _excluded$8 = ["children", "scaleX", "scaleY", "offsetX", "offsetY", "tabIndex"];
+var _excluded$9 = ["children", "scaleX", "scaleY", "offsetX", "offsetY", "tabIndex"];
 var colorIncrementer = new ColorIncrementer();
 var hitElementMap = new Map();
 
@@ -1055,7 +1055,7 @@ function Layer(_ref) {
       offsetX = _ref.offsetX,
       offsetY = _ref.offsetY,
       tabIndex = _ref.tabIndex,
-      rest = _objectWithoutProperties(_ref, _excluded$8);
+      rest = _objectWithoutProperties(_ref, _excluded$9);
 
   var _useContext = React.useContext(StageContext),
       scale = _useContext.scale,
@@ -1819,7 +1819,7 @@ var loadBackgroundImage = function loadBackgroundImage(shape) {
   };
 };
 
-var _excluded$7 = ["children"];
+var _excluded$8 = ["children"];
 var CanvasRectangle = /*#__PURE__*/function (_AbstractShape) {
   _inherits(CanvasRectangle, _AbstractShape);
 
@@ -1915,14 +1915,14 @@ var CanvasRectangle = /*#__PURE__*/function (_AbstractShape) {
 registerCustomElement('canvas-rectangle', CanvasRectangle);
 var rectangle = /*#__PURE__*/React__default["default"].forwardRef(function (_ref, ref) {
   var children = _ref.children,
-      props = _objectWithoutProperties(_ref, _excluded$7);
+      props = _objectWithoutProperties(_ref, _excluded$8);
 
   return /*#__PURE__*/React__default["default"].createElement("canvas-rectangle", _extends({}, props, {
     ref: ref
   }), children);
 });
 
-var _excluded$6 = ["children"];
+var _excluded$7 = ["children"];
 var CanvasImage = /*#__PURE__*/function (_CanvasRectangle) {
   _inherits(CanvasImage, _CanvasRectangle);
 
@@ -1981,7 +1981,7 @@ var CanvasImage = /*#__PURE__*/function (_CanvasRectangle) {
 registerCustomElement('canvas-image', CanvasImage);
 var image = /*#__PURE__*/React__default["default"].forwardRef(function (_ref, ref) {
   var children = _ref.children,
-      props = _objectWithoutProperties(_ref, _excluded$6);
+      props = _objectWithoutProperties(_ref, _excluded$7);
 
   return /*#__PURE__*/React__default["default"].createElement("canvas-image", _extends({}, props, {
     ref: ref
@@ -2002,7 +2002,7 @@ var traceArc = function traceArc(arc) {
   };
 };
 
-var _excluded$5 = ["children"];
+var _excluded$6 = ["children"];
 var CanvasCircle = /*#__PURE__*/function (_AbstractShape) {
   _inherits(CanvasCircle, _AbstractShape);
 
@@ -2090,14 +2090,14 @@ var CanvasCircle = /*#__PURE__*/function (_AbstractShape) {
 registerCustomElement('canvas-circle', CanvasCircle);
 var circle = /*#__PURE__*/React__default["default"].forwardRef(function (_ref, ref) {
   var children = _ref.children,
-      props = _objectWithoutProperties(_ref, _excluded$5);
+      props = _objectWithoutProperties(_ref, _excluded$6);
 
   return /*#__PURE__*/React__default["default"].createElement("canvas-circle", _extends({}, props, {
     ref: ref
   }), children);
 });
 
-var _excluded$4 = ["children"];
+var _excluded$5 = ["children"];
 var CanvasArc = /*#__PURE__*/function (_CanvasCircle) {
   _inherits(CanvasArc, _CanvasCircle);
 
@@ -2145,7 +2145,7 @@ var CanvasArc = /*#__PURE__*/function (_CanvasCircle) {
 registerCustomElement('canvas-arc', CanvasArc);
 var arc = /*#__PURE__*/React__default["default"].forwardRef(function (_ref, ref) {
   var children = _ref.children,
-      props = _objectWithoutProperties(_ref, _excluded$4);
+      props = _objectWithoutProperties(_ref, _excluded$5);
 
   return /*#__PURE__*/React__default["default"].createElement("canvas-arc", _extends({}, props, {
     ref: ref
@@ -2173,6 +2173,54 @@ var fillAndStrokeText = function fillAndStrokeText(text) {
       ctx.strokeStyle = text.borderColor;
       ctx.lineWidth = text.borderWidth;
       ctx.strokeText(textContent, x - text.borderWidth / 2, y - text.borderWidth / 2);
+    }
+  };
+};
+var fillAndStrokeMultilineText = function fillAndStrokeMultilineText(text) {
+  return function (ctx, offset) {
+    ctx.font = "".concat(text.fontStyle, " ").concat(text.fontWeight, " ").concat(text.fontSize, "px ").concat(text.fontFamily);
+    ctx.textBaseline = text.baseline;
+    ctx.textAlign = text.align;
+
+    var _text$breakAndMeasure = text.breakAndMeasure(text.textContent),
+        lines = _text$breakAndMeasure.lines;
+
+    var x = text.x + offset.x;
+    var y = text.y + offset.y;
+    var color = text.color,
+        borderColor = text.borderColor,
+        borderWidth = text.borderWidth;
+
+    if (color) {
+      ctx.fillStyle = color;
+    }
+
+    if (borderColor && borderWidth) {
+      ctx.strokeStyle = borderColor;
+      ctx.lineWidth = borderWidth;
+    }
+
+    var _iterator = _createForOfIteratorHelper(lines),
+        _step;
+
+    try {
+      for (_iterator.s(); !(_step = _iterator.n()).done;) {
+        var line = _step.value;
+
+        if (color) {
+          ctx.fillText(line, x - borderWidth / 2, y - borderWidth / 2);
+        }
+
+        if (borderColor && borderWidth) {
+          ctx.strokeText(line, x - borderWidth / 2, y - borderWidth / 2);
+        }
+
+        y += text.fontSize * text.lineHeight;
+      }
+    } catch (err) {
+      _iterator.e(err);
+    } finally {
+      _iterator.f();
     }
   };
 };
@@ -2353,9 +2401,11 @@ var Lru = /*#__PURE__*/function (_Symbol$iterator) {
   return Lru;
 }(Symbol.iterator);
 
-var measureText = memoize(function (style, weight, size, family, baseline, align, text) {
-  var canvas = document.createElement('canvas');
-  var ctx = canvas.getContext('2d');
+var canvas = document.createElement('canvas');
+var ctx = canvas.getContext('2d');
+var measureText = memoize(function (text, style, weight, size, family) {
+  var baseline = arguments.length > 5 && arguments[5] !== undefined ? arguments[5] : 'alphabetic';
+  var align = arguments.length > 6 && arguments[6] !== undefined ? arguments[6] : 'start';
   ctx.font = "".concat(style, " ").concat(weight, " ").concat(size, "px ").concat(family);
   ctx.textBaseline = baseline;
   ctx.textAlign = align;
@@ -2373,8 +2423,34 @@ var cropEnd = function cropEnd(text) {
   var cropped = main.slice(0, -1);
   return cropped + ellipses;
 };
+var breakLines = function breakLines(text, shouldBreak) {
+  var words = text.split(' ');
+  var lines = [];
+  var start = 0;
 
-var _excluded$3 = ["children"];
+  for (var n = 0; n < words.length; n++) {
+    var line = words.slice(start, n + 1);
+    var isLastWord = n === words.length - 1;
+
+    if (shouldBreak(line.join(' '))) {
+      if (line.length > 1) {
+        lines.push(words.slice(start, n).join(' '));
+      }
+
+      if (isLastWord) {
+        lines.push(words[words.length - 1]);
+      }
+
+      start = n;
+    } else if (isLastWord) {
+      lines.push(words.slice(start, n + 1).join(' '));
+    }
+  }
+
+  return lines;
+};
+
+var _excluded$4 = ["children"];
 var CanvasLabel = /*#__PURE__*/function (_AbstractShape) {
   _inherits(CanvasLabel, _AbstractShape);
 
@@ -2477,40 +2553,54 @@ var CanvasLabel = /*#__PURE__*/function (_AbstractShape) {
   }, {
     key: "getTextMetrics",
     value: function getTextMetrics(text) {
-      return measureText(this.fontStyle, this.fontWeight, this.fontSize, this.fontFamily, this.baseline, this.align, text);
+      return measureText(text, this.fontStyle, this.fontWeight, this.fontSize, this.fontFamily, this.baseline, this.align);
     }
   }, {
     key: "cropAndMeasure",
     value: function cropAndMeasure() {
       var textContent = this.textContent;
-      var textMetrics = this.getTextMetrics(textContent);
-      var width = textMetrics.actualBoundingBoxLeft + textMetrics.actualBoundingBoxRight;
+
+      var _this$getTextMetrics = this.getTextMetrics(textContent),
+          actualBoundingBoxLeft = _this$getTextMetrics.actualBoundingBoxLeft,
+          actualBoundingBoxRight = _this$getTextMetrics.actualBoundingBoxRight,
+          actualBoundingBoxAscent = _this$getTextMetrics.actualBoundingBoxAscent,
+          actualBoundingBoxDescent = _this$getTextMetrics.actualBoundingBoxDescent;
+
+      var width = actualBoundingBoxLeft + actualBoundingBoxRight;
+      var height = actualBoundingBoxAscent + actualBoundingBoxDescent;
 
       while (textContent !== '' && width > this.maxWidth) {
         textContent = cropEnd(textContent);
-        textMetrics = this.getTextMetrics(textContent);
-        width = textMetrics.actualBoundingBoxLeft + textMetrics.actualBoundingBoxRight;
+
+        var _this$getTextMetrics2 = this.getTextMetrics(textContent);
+
+        actualBoundingBoxLeft = _this$getTextMetrics2.actualBoundingBoxLeft;
+        actualBoundingBoxRight = _this$getTextMetrics2.actualBoundingBoxRight;
+        width = actualBoundingBoxLeft + actualBoundingBoxRight;
       }
 
-      var height = textMetrics.actualBoundingBoxAscent + textMetrics.actualBoundingBoxDescent;
       return {
         textContent: textContent,
         height: height,
         width: width,
-        textMetrics: textMetrics
+        actualBoundingBoxLeft: actualBoundingBoxLeft,
+        actualBoundingBoxRight: actualBoundingBoxRight,
+        actualBoundingBoxAscent: actualBoundingBoxAscent,
+        actualBoundingBoxDescent: actualBoundingBoxDescent
       };
     }
   }, {
     key: "getBoundingBox",
     value: function getBoundingBox(offset) {
       var _this$cropAndMeasure3 = this.cropAndMeasure(),
-          textMetrics = _this$cropAndMeasure3.textMetrics,
           width = _this$cropAndMeasure3.width,
-          height = _this$cropAndMeasure3.height;
+          height = _this$cropAndMeasure3.height,
+          actualBoundingBoxLeft = _this$cropAndMeasure3.actualBoundingBoxLeft,
+          actualBoundingBoxAscent = _this$cropAndMeasure3.actualBoundingBoxAscent;
 
-      var left = this.x + offset.x - textMetrics.actualBoundingBoxLeft;
+      var left = this.x + offset.x - actualBoundingBoxLeft;
       var right = left + width;
-      var top = this.y + offset.y - textMetrics.actualBoundingBoxAscent;
+      var top = this.y + offset.y - actualBoundingBoxAscent;
       var bottom = top + height;
       return {
         left: left,
@@ -2533,13 +2623,12 @@ var CanvasLabel = /*#__PURE__*/function (_AbstractShape) {
     key: "drawHitArea",
     value: function drawHitArea(ctx, offset, color) {
       var backgroundColor = this.backgroundColor,
-          backgroundImage = this.backgroundImage,
           borderColor = this.borderColor,
           borderWidth = this.borderWidth;
       this.pipeline.push(rotateAndScale(this));
       this.pipeline.push(traceTextBox(this));
       this.pipeline.push(fillAndStroke({
-        backgroundColor: backgroundColor || backgroundImage ? color : undefined,
+        backgroundColor: backgroundColor ? color : undefined,
         borderColor: borderColor ? color : undefined,
         borderWidth: borderWidth
       }));
@@ -2571,9 +2660,239 @@ var CanvasLabel = /*#__PURE__*/function (_AbstractShape) {
 registerCustomElement('canvas-label', CanvasLabel);
 var label = /*#__PURE__*/React__default["default"].forwardRef(function (_ref, ref) {
   var children = _ref.children,
-      props = _objectWithoutProperties(_ref, _excluded$3);
+      props = _objectWithoutProperties(_ref, _excluded$4);
 
   return /*#__PURE__*/React__default["default"].createElement("canvas-label", _extends({}, props, {
+    ref: ref
+  }), children);
+});
+
+var _excluded$3 = ["children"];
+var CanvasTextField = /*#__PURE__*/function (_AbstractShape) {
+  _inherits(CanvasTextField, _AbstractShape);
+
+  var _super = _createSuper(CanvasTextField);
+
+  function CanvasTextField() {
+    _classCallCheck(this, CanvasTextField);
+
+    return _super.apply(this, arguments);
+  }
+
+  _createClass(CanvasTextField, [{
+    key: "textContent",
+    get: function get() {
+      return this.getTextualAttribute('textContent', '');
+    },
+    set: function set(value) {
+      this.setAttribute('textContent', value);
+    }
+  }, {
+    key: "fontSize",
+    get: function get() {
+      return this.getNumericAttribute('fontSize', 10);
+    },
+    set: function set(value) {
+      this.setAttribute('fontSize', value);
+    }
+  }, {
+    key: "fontFamily",
+    get: function get() {
+      return this.getTextualAttribute('fontFamily', 'sans-serif');
+    },
+    set: function set(value) {
+      this.setAttribute('fontFamily', value);
+    }
+  }, {
+    key: "fontStyle",
+    get: function get() {
+      return this.getTextualAttribute('fontStyle', 'normal');
+    },
+    set: function set(value) {
+      this.setAttribute('fontStyle', value);
+    }
+  }, {
+    key: "fontWeight",
+    get: function get() {
+      return this.getTextualAttribute('fontWeight', 'normal');
+    },
+    set: function set(value) {
+      this.setAttribute('fontWeight', value);
+    }
+  }, {
+    key: "color",
+    get: function get() {
+      return this.getAttribute('color');
+    },
+    set: function set(value) {
+      this.setAttribute('color', value);
+    }
+  }, {
+    key: "baseline",
+    get: function get() {
+      return this.getTextualAttribute('baseline', 'alphabetic');
+    },
+    set: function set(value) {
+      this.setAttribute('baseline', value);
+    }
+  }, {
+    key: "align",
+    get: function get() {
+      return this.getTextualAttribute('align', 'start');
+    },
+    set: function set(value) {
+      this.setAttribute('align', value);
+    }
+  }, {
+    key: "width",
+    get: function get() {
+      return this.getNumericAttribute('width', 200);
+    },
+    set: function set(value) {
+      this.setAttribute('width', value);
+    }
+  }, {
+    key: "height",
+    get: function get() {
+      var _this$breakAndMeasure = this.breakAndMeasure(),
+          height = _this$breakAndMeasure.height;
+
+      return height;
+    }
+  }, {
+    key: "lineHeight",
+    get: function get() {
+      return this.getNumericAttribute('lineHeight', 1.2);
+    },
+    set: function set(value) {
+      this.setAttribute('lineHeight', value);
+    }
+  }, {
+    key: "getTextMetrics",
+    value: function getTextMetrics(text) {
+      return measureText(text, this.fontStyle, this.fontWeight, this.fontSize, this.fontFamily, this.baseline, this.align);
+    }
+  }, {
+    key: "breakAndMeasure",
+    value: function breakAndMeasure() {
+      var _this = this;
+
+      var textContent = this.textContent;
+      var lines = breakLines(textContent, function (line) {
+        var textMetrics = _this.getTextMetrics(line);
+
+        var width = textMetrics.actualBoundingBoxLeft + textMetrics.actualBoundingBoxRight;
+        return width > _this.width;
+      });
+      var measurements = lines.reduce(function (acc, line, index) {
+        var _this$getTextMetrics = _this.getTextMetrics(line),
+            actualBoundingBoxLeft = _this$getTextMetrics.actualBoundingBoxLeft,
+            actualBoundingBoxRight = _this$getTextMetrics.actualBoundingBoxRight,
+            actualBoundingBoxAscent = _this$getTextMetrics.actualBoundingBoxAscent,
+            actualBoundingBoxDescent = _this$getTextMetrics.actualBoundingBoxDescent;
+
+        var width = actualBoundingBoxLeft + actualBoundingBoxRight;
+
+        if (index === 0) {
+          acc.actualBoundingBoxAscent = actualBoundingBoxAscent;
+        }
+
+        if (index === lines.length - 1) {
+          acc.actualBoundingBoxDescent = actualBoundingBoxDescent;
+        }
+
+        acc.height += _this.fontSize * _this.lineHeight;
+        acc.width = Math.max(acc.width, width);
+        acc.actualBoundingBoxLeft = Math.max(acc.actualBoundingBoxLeft, actualBoundingBoxLeft);
+        acc.actualBoundingBoxRight = Math.min(acc.actualBoundingBoxRight, actualBoundingBoxRight);
+        return acc;
+      }, {
+        width: 0,
+        height: 0,
+        actualBoundingBoxAscent: -Infinity,
+        actualBoundingBoxDescent: Infinity,
+        actualBoundingBoxLeft: -Infinity,
+        actualBoundingBoxRight: Infinity
+      });
+      return _objectSpread2({
+        textContent: textContent,
+        lines: lines
+      }, measurements);
+    }
+  }, {
+    key: "getBoundingBox",
+    value: function getBoundingBox(offset) {
+      var _this$breakAndMeasure2 = this.breakAndMeasure(this.textContent),
+          width = _this$breakAndMeasure2.width,
+          height = _this$breakAndMeasure2.height,
+          actualBoundingBoxLeft = _this$breakAndMeasure2.actualBoundingBoxLeft,
+          actualBoundingBoxAscent = _this$breakAndMeasure2.actualBoundingBoxAscent;
+
+      var left = this.x + offset.x - actualBoundingBoxLeft;
+      var right = left + width;
+      var top = this.y + offset.y - actualBoundingBoxAscent;
+      var bottom = top + height;
+      return {
+        left: left,
+        right: right,
+        top: top,
+        bottom: bottom
+      };
+    }
+  }, {
+    key: "getTranslationCenter",
+    value: function getTranslationCenter(offset) {
+      var x = this.x + offset.x;
+      var y = this.y + offset.y;
+      return {
+        x: x,
+        y: y
+      };
+    }
+  }, {
+    key: "drawHitArea",
+    value: function drawHitArea(ctx, offset, color) {
+      var backgroundColor = this.backgroundColor,
+          borderColor = this.borderColor,
+          borderWidth = this.borderWidth;
+      this.pipeline.push(rotateAndScale(this));
+      this.pipeline.push(traceTextBox(this));
+      this.pipeline.push(fillAndStroke({
+        backgroundColor: backgroundColor ? color : undefined,
+        borderColor: borderColor ? color : undefined,
+        borderWidth: borderWidth
+      }));
+      this.drawPipeline(ctx, offset);
+    }
+  }, {
+    key: "draw",
+    value: function draw(ctx, offset) {
+      this.pipeline.push(rotateAndScale(this));
+      this.pipeline.push(shade(this));
+      this.pipeline.push(traceTextBox(this));
+      this.pipeline.push(fillAndStroke({
+        backgroundColor: this.backgroundColor,
+        borderColor: this.backgroundColor,
+        borderWidth: this.borderWidth
+      }));
+      this.pipeline.push(fillAndStrokeMultilineText(this));
+      this.drawPipeline(ctx, offset);
+    }
+  }], [{
+    key: "observedAttributes",
+    get: function get() {
+      return [].concat(_toConsumableArray(AbstractShape.observedAttributes), ['color', 'fontsize', 'fontfamily', 'fontstyle', 'fontweight', 'baseline', 'align', 'textcontent', 'lineheight', 'width', 'height']);
+    }
+  }]);
+
+  return CanvasTextField;
+}(AbstractShape);
+registerCustomElement('canvas-text-field', CanvasTextField);
+var textField = /*#__PURE__*/React__default["default"].forwardRef(function (_ref, ref) {
+  var children = _ref.children,
+      props = _objectWithoutProperties(_ref, _excluded$3);
+
+  return /*#__PURE__*/React__default["default"].createElement("canvas-text-field", _extends({}, props, {
     ref: ref
   }), children);
 });
@@ -2813,3 +3132,4 @@ exports.RoundedRectangle = roundedRectangle;
 exports.ScaleMode = ScaleMode;
 exports.Sector = sector;
 exports.Stage = Stage;
+exports.TextField = textField;
