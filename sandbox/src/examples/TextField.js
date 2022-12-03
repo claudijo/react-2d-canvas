@@ -83,6 +83,17 @@ function App() {
             Text field with multiple lines, centered in parent
           </TextField>
         </Rectangle>
+
+        <TextField
+          x={10}
+          y={140}
+          color="#111"
+          fontSize={20}
+          width={150}
+          backgroundColor="#ccc"
+        >
+          {`Text field with multiple\nlines, including line\nbreak.`}
+        </TextField>
       </Layer>
     </Stage>
   );

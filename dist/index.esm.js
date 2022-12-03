@@ -2416,27 +2416,41 @@ var cropEnd = function cropEnd(text) {
   return cropped + ellipses;
 };
 var breakLines = function breakLines(text, shouldBreak) {
-  var words = text.split(' ');
+  var paragraphs = text.split('\n');
   var lines = [];
-  var start = 0;
 
-  for (var n = 0; n < words.length; n++) {
-    var line = words.slice(start, n + 1);
-    var isLastWord = n === words.length - 1;
+  var _iterator = _createForOfIteratorHelper(paragraphs),
+      _step;
 
-    if (shouldBreak(line.join(' '))) {
-      if (line.length > 1) {
-        lines.push(words.slice(start, n).join(' '));
+  try {
+    for (_iterator.s(); !(_step = _iterator.n()).done;) {
+      var paragraph = _step.value;
+      var words = paragraph.split(' ');
+      var start = 0;
+
+      for (var n = 0; n < words.length; n++) {
+        var line = words.slice(start, n + 1);
+        var isLastWord = n === words.length - 1;
+
+        if (shouldBreak(line.join(' '))) {
+          if (line.length > 1) {
+            lines.push(words.slice(start, n).join(' '));
+          }
+
+          if (isLastWord) {
+            lines.push(words[words.length - 1]);
+          }
+
+          start = n;
+        } else if (isLastWord) {
+          lines.push(words.slice(start, n + 1).join(' '));
+        }
       }
-
-      if (isLastWord) {
-        lines.push(words[words.length - 1]);
-      }
-
-      start = n;
-    } else if (isLastWord) {
-      lines.push(words.slice(start, n + 1).join(' '));
     }
+  } catch (err) {
+    _iterator.e(err);
+  } finally {
+    _iterator.f();
   }
 
   return lines;
